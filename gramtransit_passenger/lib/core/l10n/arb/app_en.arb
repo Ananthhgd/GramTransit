@@ -1,0 +1,108 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "GramTransit",
+  "@appTitle": {
+    "description": "The application title displayed in the OS task switcher."
+  },
+
+  "navHome": "Home",
+  "@navHome": {
+    "description": "Bottom navigation bar label for the Home tab."
+  },
+
+  "navMore": "More",
+  "@navMore": {
+    "description": "Bottom navigation bar label for the More tab."
+  },
+
+  "homeWelcomeTitle": "Welcome to GramTransit",
+  "@homeWelcomeTitle": {
+    "description": "Welcome heading displayed at the top of the Home screen."
+  },
+
+  "homeWelcomeSubtitle": "Bus timings for your village routes",
+  "@homeWelcomeSubtitle": {
+    "description": "Subtitle below the Home screen welcome heading."
+  },
+
+  "homeSearchPlaceholder": "Where are you going?",
+  "@homeSearchPlaceholder": {
+    "description": "Placeholder text shown inside the non-functional search entry on the Home screen."
+  },
+
+  "homeSearchComingSoon": "Search is coming soon",
+  "@homeSearchComingSoon": {
+    "description": "Accessibility label for the non-functional search placeholder, communicating its future intent to assistive technology."
+  },
+
+  "homeUpcomingDeparturesTitle": "Upcoming departures",
+  "@homeUpcomingDeparturesTitle": {
+    "description": "Section heading for the upcoming departures area on the Home screen."
+  },
+
+  "homeUpcomingDeparturesEmptyTitle": "No departures to show yet",
+  "@homeUpcomingDeparturesEmptyTitle": {
+    "description": "Empty-state title shown inside the upcoming departures card."
+  },
+
+  "homeUpcomingDeparturesEmptyMessage": "Bus timetables will appear here once they are available.",
+  "@homeUpcomingDeparturesEmptyMessage": {
+    "description": "Empty-state explanatory message below the upcoming departures empty title."
+  },
+
+  "moreTitle": "More",
+  "@moreTitle": {
+    "description": "AppBar title for the More screen."
+  },
+
+  "moreSettings": "Settings",
+  "@moreSettings": {
+    "description": "Label for the Settings entry in the More screen list."
+  },
+
+  "settingsTitle": "Settings",
+  "@settingsTitle": {
+    "description": "AppBar title for the Settings screen."
+  },
+
+  "settingsAppearanceSection": "Appearance",
+  "@settingsAppearanceSection": {
+    "description": "Section heading for appearance-related settings."
+  },
+
+  "settingsThemeLabel": "Theme",
+  "@settingsThemeLabel": {
+    "description": "Label for the theme-selection control in Settings."
+  },
+
+  "themeModeSystem": "System",
+  "@themeModeSystem": {
+    "description": "Theme mode option: follow the device system setting."
+  },
+
+  "themeModeLight": "Light",
+  "@themeModeLight": {
+    "description": "Theme mode option: always use the light theme."
+  },
+
+  "themeModeDark": "Dark",
+  "@themeModeDark": {
+    "description": "Theme mode option: always use the dark theme."
+  },
+
+  "routeNotFoundTitle": "Page not found",
+  "@routeNotFoundTitle": {
+    "description": "Title displayed on the route-not-found error screen."
+  },
+
+  "routeNotFoundMessage": "The page you're looking for doesn't exist.",
+  "@routeNotFoundMessage": {
+    "description": "Explanatory message on the route-not-found error screen."
+  },
+
+  "routeNotFoundAction": "Go to Home",
+  "@routeNotFoundAction": {
+    "description": "Button label on the route-not-found screen that navigates the user back to the Home screen."
+  }
+}
