@@ -104,5 +104,30 @@
   "routeNotFoundAction": "Go to Home",
   "@routeNotFoundAction": {
     "description": "Button label on the route-not-found screen that navigates the user back to the Home screen."
+  },
+
+  "loadingLabel": "Loading",
+  "@loadingLabel": {
+    "description": "Accessible label for a loading indicator, read by screen readers while content is being fetched."
+  },
+
+  "actionTryAgain": "Try again",
+  "@actionTryAgain": {
+    "description": "Label for a retry button shown after an error."
+  },
+
+  "errorStorage": "We couldn't save this on your device.",
+  "@errorStorage": {
+    "description": "Error message shown when a storage/persistence operation fails."
+  },
+
+  "errorUnexpected": "Something went wrong. Please try again.",
+  "@errorUnexpected": {
+    "description": "Generic error message shown when an unexpected failure occurs."
+  },
+
+  "settingsThemeNotSaved": "Theme changed, but it couldn't be saved. It will reset when you close the app.",
+  "@settingsThemeNotSaved": {
+    "description": "SnackBar message shown when the theme is changed successfully in memory but the preference could not be persisted to storage."
   }
 }

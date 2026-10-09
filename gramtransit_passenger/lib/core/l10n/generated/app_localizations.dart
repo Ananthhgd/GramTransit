@@ -219,6 +219,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Go to Home'**
   String get routeNotFoundAction;
+
+  /// Accessible label for a loading indicator, read by screen readers while content is being fetched.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading'**
+  String get loadingLabel;
+
+  /// Label for a retry button shown after an error.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get actionTryAgain;
+
+  /// Error message shown when a storage/persistence operation fails.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t save this on your device.'**
+  String get errorStorage;
+
+  /// Generic error message shown when an unexpected failure occurs.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get errorUnexpected;
+
+  /// SnackBar message shown when the theme is changed successfully in memory but the preference could not be persisted to storage.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme changed, but it couldn\'t be saved. It will reset when you close the app.'**
+  String get settingsThemeNotSaved;
 }
 
 class _AppLocalizationsDelegate

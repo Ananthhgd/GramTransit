@@ -73,4 +73,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get routeNotFoundAction => 'Go to Home';
+
+  @override
+  String get loadingLabel => 'Loading';
+
+  @override
+  String get actionTryAgain => 'Try again';
+
+  @override
+  String get errorStorage => 'We couldn\'t save this on your device.';
+
+  @override
+  String get errorUnexpected => 'Something went wrong. Please try again.';
+
+  @override
+  String get settingsThemeNotSaved =>
+      'Theme changed, but it couldn\'t be saved. It will reset when you close the app.';
 }
