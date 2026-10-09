@@ -1,0 +1,65 @@
+name: Passenger CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'gramtransit_passenger/**'
+      - '.github/workflows/passenger-ci.yml'
+      - '.gitattributes'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'gramtransit_passenger/**'
+      - '.github/workflows/passenger-ci.yml'
+      - '.gitattributes'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build_and_test:
+    name: Build and Test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: gramtransit_passenger
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.6'
+          channel: 'stable'
+          cache: true
+
+      - name: Flutter version
+        run: flutter --version
+
+      - name: Install dependencies
+        run: flutter pub get --enforce-lockfile
+
+      - name: Generate localization
+        run: flutter gen-l10n
+
+      - name: Verify generated localization
+        run: git diff --exit-code -- lib/core/l10n/generated
+
+      - name: Format verification
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze code
+        run: flutter analyze --fatal-infos --fatal-warnings
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Run config define test
+        run: flutter test test/core/config/app_config_dart_define_test.dart --dart-define=APP_ENV=prod --dart-define=EXPECTED_APP_ENV=prod

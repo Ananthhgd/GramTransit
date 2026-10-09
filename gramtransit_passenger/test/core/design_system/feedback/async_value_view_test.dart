@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -7,30 +6,13 @@ import 'package:gramtransit_passenger/core/design_system/components/feedback/asy
 import 'package:gramtransit_passenger/core/design_system/components/feedback/gt_error_view.dart';
 import 'package:gramtransit_passenger/core/design_system/components/feedback/gt_loading_view.dart';
 import 'package:gramtransit_passenger/core/error/app_failure.dart';
-import 'package:gramtransit_passenger/core/l10n/generated/app_localizations.dart';
 
-/// Pumps [child] inside a localised [ProviderScope] for widget tests.
-Future<void> pumpWidget(WidgetTester tester, Widget child) async {
-  await tester.pumpWidget(
-    ProviderScope(
-      child: MaterialApp(
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-        ],
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: Scaffold(body: child),
-      ),
-    ),
-  );
-  await tester.pump();
-}
+import '../../../helpers/widget_pump_helper.dart';
 
 void main() {
   group('AsyncValueView', () {
     testWidgets('loading state shows GtLoadingView', (tester) async {
-      await pumpWidget(
+      await pumpWidgetLocalised(
         tester,
         AsyncValueView<String>(
           value: const AsyncLoading(),
@@ -42,7 +24,7 @@ void main() {
     });
 
     testWidgets('data state shows data builder result', (tester) async {
-      await pumpWidget(
+      await pumpWidgetLocalised(
         tester,
         AsyncValueView<String>(
           value: const AsyncData('hello'),
@@ -56,7 +38,7 @@ void main() {
     testWidgets('AsyncError with StorageFailure shows storage error message', (
       tester,
     ) async {
-      await pumpWidget(
+      await pumpWidgetLocalised(
         tester,
         AsyncValueView<String>(
           value: AsyncError(const StorageFailure(), StackTrace.empty),
@@ -71,7 +53,7 @@ void main() {
     testWidgets(
       'AsyncError with unknown error shows unexpected error message',
       (tester) async {
-        await pumpWidget(
+        await pumpWidgetLocalised(
           tester,
           AsyncValueView<String>(
             value: AsyncError(Exception('boom'), StackTrace.empty),
@@ -87,7 +69,7 @@ void main() {
       tester,
     ) async {
       var retryCalled = 0;
-      await pumpWidget(
+      await pumpWidgetLocalised(
         tester,
         AsyncValueView<String>(
           value: AsyncError(const UnexpectedFailure(), StackTrace.empty),
@@ -101,7 +83,7 @@ void main() {
     });
 
     testWidgets('no retry button when onRetry is null', (tester) async {
-      await pumpWidget(
+      await pumpWidgetLocalised(
         tester,
         AsyncValueView<String>(
           value: AsyncError(const UnexpectedFailure(), StackTrace.empty),
@@ -110,6 +92,5 @@ void main() {
       );
       expect(find.text('Try again'), findsNothing);
     });
-
   });
 }

@@ -1,17 +1,44 @@
-# gramtransit_passenger
+# GramTransit Passenger App
 
-A new Flutter project.
+The Passenger app provides bus timings and transit information for rural village routes.
 
-## Getting Started
+**Status:** In development (Foundation phase).
 
-This project is a starting point for a Flutter application.
+## Prerequisites
 
-A few resources to get you started if this is your first Flutter project:
+- **Flutter**: 3.47.6 (stable)
+- **Dart**: 3.13.5
+- **Android**: Primary development target
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Setup & Run
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+1. Fetch dependencies:
+   ```bash
+   flutter pub get
+   ```
+2. Generate localization files:
+   ```bash
+   flutter gen-l10n
+   ```
+3. Run the app locally (defaulting to the `dev` environment):
+   ```bash
+   flutter run
+   ```
+   *Note: To run a specific environment, use `--dart-define=APP_ENV=prod` or `--dart-define=APP_ENV=staging`.*
+
+## Local Verification
+
+Run these commands before submitting changes:
+
+```bash
+dart format --output=none --set-exit-if-changed .
+flutter analyze --fatal-infos --fatal-warnings
+flutter test
+flutter test test/core/config/app_config_dart_define_test.dart --dart-define=APP_ENV=prod --dart-define=EXPECTED_APP_ENV=prod
+```
+
+## Documentation
+
+- [Passenger Architecture v1.0](docs/architecture.md)
+- [Development Guide](docs/development-guide.md)
+- [Passenger ADRs](docs/adr/README.md)

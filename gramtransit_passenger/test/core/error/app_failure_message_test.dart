@@ -1,38 +1,14 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:gramtransit_passenger/core/error/app_failure.dart';
 import 'package:gramtransit_passenger/core/error/app_failure_message.dart';
-import 'package:gramtransit_passenger/core/l10n/generated/app_localizations.dart';
 
-/// Pumps a minimal localised widget and returns the [AppLocalizations] instance.
-Future<AppLocalizations> _pumpL10n(WidgetTester tester) async {
-  late AppLocalizations l10n;
-  await tester.pumpWidget(
-    MaterialApp(
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ],
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: Builder(
-        builder: (context) {
-          l10n = AppLocalizations.of(context);
-          return const SizedBox.shrink();
-        },
-      ),
-    ),
-  );
-  await tester.pumpAndSettle();
-  return l10n;
-}
+import '../../helpers/widget_pump_helper.dart';
 
 void main() {
   group('AppFailureMessage.of', () {
     testWidgets('StorageFailure maps to errorStorage string', (tester) async {
-      final l10n = await _pumpL10n(tester);
+      final l10n = await pumpL10n(tester);
       expect(
         AppFailureMessage.of(const StorageFailure(), l10n),
         equals(l10n.errorStorage),
@@ -42,7 +18,7 @@ void main() {
     testWidgets('UnexpectedFailure maps to errorUnexpected string', (
       tester,
     ) async {
-      final l10n = await _pumpL10n(tester);
+      final l10n = await pumpL10n(tester);
       expect(
         AppFailureMessage.of(const UnexpectedFailure(), l10n),
         equals(l10n.errorUnexpected),
@@ -52,7 +28,7 @@ void main() {
     testWidgets('All AppFailure subtypes map to non-empty strings', (
       tester,
     ) async {
-      final l10n = await _pumpL10n(tester);
+      final l10n = await pumpL10n(tester);
       for (final failure in <AppFailure>[
         const StorageFailure(),
         const UnexpectedFailure(),
