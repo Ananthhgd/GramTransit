@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "datasetVersion": "sample-v1",
+  "isSampleData": true,
+  "stops": [
+    {
+      "id": "stop_1",
+      "name": {
+        "en": "City Center"
+      }
+    },
+    {
+      "id": "stop_2",
+      "name": {
+        "en": "North Station"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "id": "route_1",
+      "shortName": {
+        "en": "1A"
+      },
+      "longName": {
+        "en": "City Center - North Station"
+      }
+    }
+  ],
+  "trips": [
+    {
+      "id": "trip_1",
+      "routeId": "route_1",
+      "serviceDays": ["mon", "tue", "wed", "thu", "fri", "sat"],
+      "stopTimes": [
+        {
+          "stopId": "stop_1",
+          "arrivalTime": "08:00",
+          "departureTime": "08:05"
+        },
+        {
+          "stopId": "stop_2",
+          "arrivalTime": "08:20",
+          "departureTime": "08:25"
+        }
+      ]
+    },
+    {
+      "id": "trip_2",
+      "routeId": "route_1",
+      "serviceDays": ["sun"],
+      "stopTimes": [
+        {
+          "stopId": "stop_1",
+          "arrivalTime": "23:45",
+          "departureTime": "23:50"
+        },
+        {
+          "stopId": "stop_2",
+          "arrivalTime": "24:10",
+          "departureTime": "24:15"
+        }
+      ]
+    }
+  ]
+}
