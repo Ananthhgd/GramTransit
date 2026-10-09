@@ -91,18 +91,33 @@ void main() {
       );
     });
 
-    test('TimetableInfo version validation', () {
+    test('TimetableInfo datasetVersion validation', () {
+      final infoTrue = TimetableInfo(datasetVersion: '1', isSampleData: true);
+      expect(infoTrue.datasetVersion, '1');
+      expect(infoTrue.isSampleData, true);
+
+      final infoFalse = TimetableInfo(datasetVersion: '2', isSampleData: false);
+      expect(infoFalse.isSampleData, false);
+
       expect(
-        () => TimetableInfo(version: '1', validFrom: DateTime(2026)),
-        returnsNormally,
+        () => TimetableInfo(datasetVersion: '', isSampleData: false),
+        throwsA(
+          isA<ArgumentError>().having(
+            (e) => e.message,
+            'message',
+            'TimetableInfo datasetVersion cannot be empty or whitespace',
+          ),
+        ),
       );
       expect(
-        () => TimetableInfo(version: '', validFrom: DateTime(2026)),
-        throwsArgumentError,
-      );
-      expect(
-        () => TimetableInfo(version: '   ', validFrom: DateTime(2026)),
-        throwsArgumentError,
+        () => TimetableInfo(datasetVersion: '   ', isSampleData: false),
+        throwsA(
+          isA<ArgumentError>().having(
+            (e) => e.message,
+            'message',
+            'TimetableInfo datasetVersion cannot be empty or whitespace',
+          ),
+        ),
       );
     });
 
@@ -138,7 +153,7 @@ void main() {
       );
 
       final timetable = Timetable(
-        info: TimetableInfo(version: '1', validFrom: DateTime.now()),
+        info: TimetableInfo(datasetVersion: '1', isSampleData: true),
         stops: [],
         routes: [],
         trips: [trip],

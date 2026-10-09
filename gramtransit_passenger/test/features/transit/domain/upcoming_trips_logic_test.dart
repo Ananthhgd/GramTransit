@@ -12,7 +12,7 @@ void main() {
 
     setUp(() {
       timetable = Timetable(
-        info: TimetableInfo(version: '1', validFrom: DateTime(2026, 1, 1)),
+        info: TimetableInfo(datasetVersion: '1', isSampleData: true),
         stops: [
           TransitStop(
             id: StopId('stop_A'),

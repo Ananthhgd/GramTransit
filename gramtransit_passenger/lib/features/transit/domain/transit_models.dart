@@ -128,13 +128,13 @@ final class ScheduledTrip {
 }
 
 final class TimetableInfo {
-  final String version;
-  final DateTime validFrom;
+  final String datasetVersion;
+  final bool isSampleData;
 
-  TimetableInfo({required this.version, required this.validFrom}) {
-    if (version.trim().isEmpty) {
+  TimetableInfo({required this.datasetVersion, required this.isSampleData}) {
+    if (datasetVersion.trim().isEmpty) {
       throw ArgumentError(
-        'TimetableInfo version cannot be empty or whitespace',
+        'TimetableInfo datasetVersion cannot be empty or whitespace',
       );
     }
   }
@@ -144,11 +144,11 @@ final class TimetableInfo {
       identical(this, other) ||
       other is TimetableInfo &&
           runtimeType == other.runtimeType &&
-          version == other.version &&
-          validFrom == other.validFrom;
+          datasetVersion == other.datasetVersion &&
+          isSampleData == other.isSampleData;
 
   @override
-  int get hashCode => Object.hash(version, validFrom);
+  int get hashCode => Object.hash(datasetVersion, isSampleData);
 }
 
 final class Timetable {
