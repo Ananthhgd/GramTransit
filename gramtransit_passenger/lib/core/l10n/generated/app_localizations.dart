@@ -238,6 +238,12 @@ abstract class AppLocalizations {
   /// **'We couldn\'t save this on your device.'**
   String get errorStorage;
 
+  /// Error message shown when the offline timetable data is malformed or unreadable.
+  ///
+  /// In en, this message translates to:
+  /// **'The timetable data could not be loaded.'**
+  String get errorDataFormat;
+
   /// Generic error message shown when an unexpected failure occurs.
   ///
   /// In en, this message translates to:

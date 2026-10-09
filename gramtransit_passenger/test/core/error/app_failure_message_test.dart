@@ -15,6 +15,16 @@ void main() {
       );
     });
 
+    testWidgets('DataFormatFailure maps to errorDataFormat string', (
+      tester,
+    ) async {
+      final l10n = await pumpL10n(tester);
+      expect(
+        AppFailureMessage.of(const DataFormatFailure(), l10n),
+        equals(l10n.errorDataFormat),
+      );
+    });
+
     testWidgets('UnexpectedFailure maps to errorUnexpected string', (
       tester,
     ) async {
@@ -31,6 +41,7 @@ void main() {
       final l10n = await pumpL10n(tester);
       for (final failure in <AppFailure>[
         const StorageFailure(),
+        const DataFormatFailure(),
         const UnexpectedFailure(),
       ]) {
         final message = AppFailureMessage.of(failure, l10n);

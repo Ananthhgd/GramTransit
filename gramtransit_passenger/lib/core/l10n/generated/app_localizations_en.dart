@@ -84,6 +84,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorStorage => 'We couldn\'t save this on your device.';
 
   @override
+  String get errorDataFormat => 'The timetable data could not be loaded.';
+
+  @override
   String get errorUnexpected => 'Something went wrong. Please try again.';
 
   @override

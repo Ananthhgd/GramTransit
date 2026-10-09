@@ -25,6 +25,14 @@ final class StorageFailure extends AppFailure {
   String toString() => 'StorageFailure(cause: $cause)';
 }
 
+/// A failure indicating that data could not be parsed or did not conform to the expected format.
+final class DataFormatFailure extends AppFailure {
+  const DataFormatFailure({super.cause, super.stackTrace});
+
+  @override
+  String toString() => 'DataFormatFailure(cause: $cause)';
+}
+
 /// A failure that does not fall into any other known category.
 ///
 /// Indicates a programming error or a genuinely unexpected platform condition.

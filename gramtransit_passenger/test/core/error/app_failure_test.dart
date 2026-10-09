@@ -36,6 +36,14 @@ void main() {
       expect(failure.stackTrace, same(st));
     });
 
+    test('DataFormatFailure preserves cause and stack trace', () {
+      final cause = FormatException('bad JSON');
+      final st = StackTrace.current;
+      final failure = DataFormatFailure(cause: cause, stackTrace: st);
+      expect(failure.cause, same(cause));
+      expect(failure.stackTrace, same(st));
+    });
+
     test('UnexpectedFailure preserves cause and stack trace', () {
       final cause = Error();
       final st = StackTrace.current;
@@ -46,6 +54,12 @@ void main() {
 
     test('const StorageFailure has null cause and null stackTrace', () {
       const failure = StorageFailure();
+      expect(failure.cause, isNull);
+      expect(failure.stackTrace, isNull);
+    });
+
+    test('const DataFormatFailure has null cause and null stackTrace', () {
+      const failure = DataFormatFailure();
       expect(failure.cause, isNull);
       expect(failure.stackTrace, isNull);
     });

@@ -120,6 +120,10 @@
   "@errorStorage": {
     "description": "Error message shown when a storage/persistence operation fails."
   },
+  "errorDataFormat": "The timetable data could not be loaded.",
+  "@errorDataFormat": {
+    "description": "Error message shown when the offline timetable data is malformed or unreadable."
+  },
 
   "errorUnexpected": "Something went wrong. Please try again.",
   "@errorUnexpected": {

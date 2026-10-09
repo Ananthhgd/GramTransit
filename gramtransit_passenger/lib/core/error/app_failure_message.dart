@@ -13,6 +13,7 @@ abstract final class AppFailureMessage {
   static String of(AppFailure failure, AppLocalizations l10n) {
     return switch (failure) {
       StorageFailure() => l10n.errorStorage,
+      DataFormatFailure() => l10n.errorDataFormat,
       UnexpectedFailure() => l10n.errorUnexpected,
     };
   }
