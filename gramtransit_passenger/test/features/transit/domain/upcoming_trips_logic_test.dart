@@ -26,6 +26,10 @@ void main() {
             id: StopId('stop_C'),
             name: LocalizedText(english: 'Stop C'),
           ),
+          TransitStop(
+            id: StopId('stop_D'),
+            name: LocalizedText(english: 'Stop D'),
+          ),
         ],
         routes: [
           TransitRoute(
@@ -35,7 +39,7 @@ void main() {
           ),
         ],
         trips: [
-          // Trip 1: Morning trip, departs A at 08:00, arrives C at 08:30
+          // Trip 1: Morning trip, departs A at 08:00, arrives C at 08:30 (terminates at C)
           ScheduledTrip(
             id: TripId('trip_1'),
             routeId: RouteId('route_1'),
@@ -58,7 +62,7 @@ void main() {
               ),
             ],
           ),
-          // Trip 2: Late night trip, departs A at 23:45, arrives C at 24:15 (next day 00:15)
+          // Trip 2: Late night trip, departs A at 23:45, departs C at 24:15, arrives D at 24:30 (terminates at D)
           ScheduledTrip(
             id: TripId('trip_2'),
             routeId: RouteId('route_1'),
@@ -78,6 +82,11 @@ void main() {
                 stopId: StopId('stop_C'),
                 arrivalTime: ServiceTime(hour: 24, minute: 15),
                 departureTime: ServiceTime(hour: 24, minute: 15),
+              ),
+              StopTime(
+                stopId: StopId('stop_D'),
+                arrivalTime: ServiceTime(hour: 24, minute: 30),
+                departureTime: ServiceTime(hour: 24, minute: 30),
               ),
             ],
           ),
@@ -104,9 +113,9 @@ void main() {
       );
     });
 
-    test('a trip currently in progress remains relevant because scheduled end >= now', () {
-      // Query at Stop B. The bus departed A at 08:00, arrives B at 08:15.
-      // Current time is 08:10. The trip is in progress.
+    test('upcoming departure at queried stop populates current when departure >= query minute', () {
+      // Query at Stop B. The bus departed A at 08:00, departs B at 08:15.
+      // Current time is 08:10. The departure at Stop B is upcoming.
       final now = DateTime(2026, 10, 12, 8, 10);
       final result = findUpcomingTrips(
         stopId: StopId('stop_B'),
@@ -124,24 +133,42 @@ void main() {
       );
     });
 
-    test(
-      'trip ending exactly at now remains relevant for the terminus stop',
-      () {
-        // Query at Stop C. Trip 1 arrives at 08:30.
-        final now = DateTime(2026, 10, 12, 8, 30);
-        final result = findUpcomingTrips(
-          stopId: StopId('stop_C'),
-          timetable: timetable,
-          now: now,
-        );
+    test('queried terminal stop does not return terminating trip as a boarding departure', () {
+      // Stop C is the terminal/final stop for Trip 1 (08:30 arrival/departure).
+      // Query at Stop C at 08:30 (when Trip 1 terminates).
+      final now = DateTime(2026, 10, 12, 8, 30);
+      final result = findUpcomingTrips(
+        stopId: StopId('stop_C'),
+        timetable: timetable,
+        now: now,
+      );
 
-        expect(result.current.first.tripId, TripId('trip_1'));
-        expect(result.nextLater, isEmpty);
-      },
-    );
+      // Trip 1 terminates at Stop C, so it must NOT appear in current.
+      expect(
+        result.current.any((occ) => occ.tripId == TripId('trip_1')),
+        isFalse,
+      );
+      // Trip 2 serves Stop C non-terminally (departs 24:15 towards Stop D), so current has Trip 2.
+      expect(result.current.first.tripId, TripId('trip_2'));
+      // nextLater must NOT reintroduce Trip 1 terminating occurrence.
+      expect(
+        result.nextLater.any((occ) => occ.tripId == TripId('trip_1')),
+        isFalse,
+      );
+
+      // Additionally query Stop D (terminal stop for Trip 2) on Monday night:
+      final resultAtD = findUpcomingTrips(
+        stopId: StopId('stop_D'),
+        timetable: timetable,
+        now: DateTime(2026, 10, 12, 23, 0),
+      );
+      // Stop D is only a terminal stop in this timetable, so both current and nextLater must be empty.
+      expect(resultAtD.current, isEmpty);
+      expect(resultAtD.nextLater, isEmpty);
+    });
 
     test('trip ending before now is not treated as current/relevant', () {
-      // Query at Stop B at 08:40. Trip 1 ended at 08:30. It should NOT be relevant.
+      // Query at Stop B at 08:40. Trip 1 departed B at 08:15. It should NOT be relevant.
       final now = DateTime(2026, 10, 12, 8, 40);
       final result = findUpcomingTrips(
         stopId: StopId('stop_B'),
@@ -155,9 +182,9 @@ void main() {
     });
 
     test('after-midnight ServiceTime belonging to yesterdays service day is correctly considered', () {
-      // Query at Stop B on TUESDAY at 00:05 (2026-10-13 00:05).
-      // Trip 2 operates on MONDAY, but arrives at Stop C at 24:15 (Tuesday 00:15).
-      // Let's query Stop C instead. Arrives at 24:15 (Tue 00:15).
+      // Query at Stop C on TUESDAY at 00:05 (2026-10-13 00:05).
+      // Trip 2 operates on MONDAY service day, and departs Stop C at 24:15 (Tuesday 00:15) towards Stop D.
+      // Stop C is non-terminal for Trip 2.
       final now = DateTime(2026, 10, 13, 0, 5); // Tuesday 00:05
       final result = findUpcomingTrips(
         stopId: StopId('stop_C'),
@@ -172,6 +199,62 @@ void main() {
         DateTime(2026, 10, 13, 0, 15),
       );
       expect(result.nextLater, isEmpty);
+    });
+
+    test('non-terminal departure scheduled exactly at queryTime minute is included', () {
+      // Trip 1 departs Stop A at exactly 08:00. Query now is 08:00.
+      final now = DateTime(2026, 10, 12, 8, 0);
+      final result = findUpcomingTrips(
+        stopId: StopId('stop_A'),
+        timetable: timetable,
+        now: now,
+      );
+
+      expect(result.current.isNotEmpty, isTrue);
+      expect(result.current.first.tripId, TripId('trip_1'));
+      expect(
+        result.current.first.scheduledDeparture,
+        DateTime(2026, 10, 12, 8, 0),
+      );
+    });
+
+    test('sub-minute query time includes departure in the same minute', () {
+      // Trip 1 departs Stop A at 08:00.
+      // Query now carries seconds and milliseconds (08:00:15.500).
+      final now = DateTime(2026, 10, 12, 8, 0, 15, 500);
+      final result = findUpcomingTrips(
+        stopId: StopId('stop_A'),
+        timetable: timetable,
+        now: now,
+      );
+
+      expect(result.current.isNotEmpty, isTrue);
+      expect(result.current.first.tripId, TripId('trip_1'));
+      expect(
+        result.current.first.scheduledDeparture,
+        DateTime(2026, 10, 12, 8, 0),
+      );
+    });
+
+    test('non-terminal scheduled departure one minute before query minute is excluded even if trip in progress', () {
+      // Trip 1 departs Stop A at 08:00 and arrives Stop C at 08:30.
+      // At 08:01, the departure at Stop A has already passed by 1 minute,
+      // even though the trip is still active downstream until 08:30.
+      final now = DateTime(2026, 10, 12, 8, 1);
+      final result = findUpcomingTrips(
+        stopId: StopId('stop_A'),
+        timetable: timetable,
+        now: now,
+      );
+
+      // Trip 1 (08:00 departure at Stop A) must NOT be returned.
+      // Next at Stop A is Trip 2 at 23:45.
+      expect(result.current.isNotEmpty, isTrue);
+      expect(result.current.first.tripId, TripId('trip_2'));
+      expect(
+        result.current.any((occ) => occ.tripId == TripId('trip_1')),
+        isFalse,
+      );
     });
 
     test('service-day filtering & nextLater finds a valid service within the next 7 days', () {
