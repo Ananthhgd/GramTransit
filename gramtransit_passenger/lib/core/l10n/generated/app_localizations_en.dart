@@ -34,11 +34,48 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeUpcomingDeparturesTitle => 'Upcoming departures';
 
   @override
-  String get homeUpcomingDeparturesEmptyTitle => 'No departures to show yet';
+  String get homeStopSelectorLabel => 'Select stop';
 
   @override
-  String get homeUpcomingDeparturesEmptyMessage =>
-      'Bus timetables will appear here once they are available.';
+  String get homeChooseStopPrompt =>
+      'Choose a stop to see scheduled departures.';
+
+  @override
+  String get homeScheduledDisclosure =>
+      'Scheduled times. Actual times may vary.';
+
+  @override
+  String get homeSampleDataNotice =>
+      'Sample timetable for testing — not for real travel.';
+
+  @override
+  String get homeTimetableLoadError => 'The timetable could not be loaded.';
+
+  @override
+  String get homeNoStopsAvailable => 'No stops available';
+
+  @override
+  String homeNoUpcomingDepartures(String stop) {
+    return 'No upcoming scheduled buses from $stop';
+  }
+
+  @override
+  String homeNoMoreDeparturesForNow(String stop) {
+    return 'No more scheduled buses from $stop for now';
+  }
+
+  @override
+  String get homeNextScheduledBus => 'Next scheduled bus';
+
+  @override
+  String homeTripDestination(String destination) {
+    return 'To $destination';
+  }
+
+  @override
+  String homeTripRoute(String shortName, String longName) {
+    return 'Route $shortName · $longName';
+  }
 
   @override
   String get moreTitle => 'More';

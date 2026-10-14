@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:gramtransit_passenger/core/design_system/tokens/gt_spacing.dart';
 import 'package:gramtransit_passenger/features/home/presentation/widgets/home_header.dart';
 import 'package:gramtransit_passenger/features/home/presentation/widgets/search_entry_placeholder.dart';
-import 'package:gramtransit_passenger/features/home/presentation/widgets/upcoming_departures_placeholder.dart';
+import 'package:gramtransit_passenger/features/home/presentation/widgets/upcoming_departures_section.dart';
 
 /// Home screen — foundational layout only.
-/// No transit data or fake content; placeholders communicate future features.
+/// Search is coming soon; departures are backed by the P5 schedule section.
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -26,7 +26,7 @@ class HomeScreen extends StatelessWidget {
               SizedBox(height: GtSpacing.xl),
               SearchEntryPlaceholder(),
               SizedBox(height: GtSpacing.xl),
-              UpcomingDeparturesPlaceholder(),
+              UpcomingDeparturesSection(),
             ],
           ),
         ),

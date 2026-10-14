@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -27,6 +28,10 @@ Future<void> pumpApp(
 }
 
 void main() {
+  setUp(() {
+    rootBundle.clear();
+  });
+
   group('Foundation A — smoke tests (preserved)', () {
     testWidgets('app starts under ProviderScope without error', (tester) async {
       await pumpApp(tester);

@@ -142,17 +142,71 @@ abstract class AppLocalizations {
   /// **'Upcoming departures'**
   String get homeUpcomingDeparturesTitle;
 
-  /// Empty-state title shown inside the upcoming departures card.
+  /// Label for the stop selector dropdown on the Home screen.
   ///
   /// In en, this message translates to:
-  /// **'No departures to show yet'**
-  String get homeUpcomingDeparturesEmptyTitle;
+  /// **'Select stop'**
+  String get homeStopSelectorLabel;
 
-  /// Empty-state explanatory message below the upcoming departures empty title.
+  /// Prompt shown when timetable data is loaded but no stop has been selected.
   ///
   /// In en, this message translates to:
-  /// **'Bus timetables will appear here once they are available.'**
-  String get homeUpcomingDeparturesEmptyMessage;
+  /// **'Choose a stop to see scheduled departures.'**
+  String get homeChooseStopPrompt;
+
+  /// Persistent disclosure explaining that departure times are scheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled times. Actual times may vary.'**
+  String get homeScheduledDisclosure;
+
+  /// Notice displayed when the timetable contains sample testing data.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample timetable for testing — not for real travel.'**
+  String get homeSampleDataNotice;
+
+  /// Error message displayed when the timetable fails to load.
+  ///
+  /// In en, this message translates to:
+  /// **'The timetable could not be loaded.'**
+  String get homeTimetableLoadError;
+
+  /// Empty state title displayed when the loaded timetable contains no stops.
+  ///
+  /// In en, this message translates to:
+  /// **'No stops available'**
+  String get homeNoStopsAvailable;
+
+  /// Message displayed when there are no scheduled buses remaining for the selected stop.
+  ///
+  /// In en, this message translates to:
+  /// **'No upcoming scheduled buses from {stop}'**
+  String homeNoUpcomingDepartures(String stop);
+
+  /// Message displayed when there are no current departures remaining for the selected stop, but later departures exist.
+  ///
+  /// In en, this message translates to:
+  /// **'No more scheduled buses from {stop} for now'**
+  String homeNoMoreDeparturesForNow(String stop);
+
+  /// Heading for nextLater departures when current departures are empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Next scheduled bus'**
+  String get homeNextScheduledBus;
+
+  /// Secondary line on an upcoming trip card showing the destination.
+  ///
+  /// In en, this message translates to:
+  /// **'To {destination}'**
+  String homeTripDestination(String destination);
+
+  /// Tertiary line on an upcoming trip card showing route short and long names.
+  ///
+  /// In en, this message translates to:
+  /// **'Route {shortName} · {longName}'**
+  String homeTripRoute(String shortName, String longName);
 
   /// AppBar title for the More screen.
   ///

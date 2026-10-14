@@ -41,14 +41,82 @@
     "description": "Section heading for the upcoming departures area on the Home screen."
   },
 
-  "homeUpcomingDeparturesEmptyTitle": "No departures to show yet",
-  "@homeUpcomingDeparturesEmptyTitle": {
-    "description": "Empty-state title shown inside the upcoming departures card."
+  "homeStopSelectorLabel": "Select stop",
+  "@homeStopSelectorLabel": {
+    "description": "Label for the stop selector dropdown on the Home screen."
   },
 
-  "homeUpcomingDeparturesEmptyMessage": "Bus timetables will appear here once they are available.",
-  "@homeUpcomingDeparturesEmptyMessage": {
-    "description": "Empty-state explanatory message below the upcoming departures empty title."
+  "homeChooseStopPrompt": "Choose a stop to see scheduled departures.",
+  "@homeChooseStopPrompt": {
+    "description": "Prompt shown when timetable data is loaded but no stop has been selected."
+  },
+
+  "homeScheduledDisclosure": "Scheduled times. Actual times may vary.",
+  "@homeScheduledDisclosure": {
+    "description": "Persistent disclosure explaining that departure times are scheduled."
+  },
+
+  "homeSampleDataNotice": "Sample timetable for testing — not for real travel.",
+  "@homeSampleDataNotice": {
+    "description": "Notice displayed when the timetable contains sample testing data."
+  },
+
+  "homeTimetableLoadError": "The timetable could not be loaded.",
+  "@homeTimetableLoadError": {
+    "description": "Error message displayed when the timetable fails to load."
+  },
+
+  "homeNoStopsAvailable": "No stops available",
+  "@homeNoStopsAvailable": {
+    "description": "Empty state title displayed when the loaded timetable contains no stops."
+  },
+
+  "homeNoUpcomingDepartures": "No upcoming scheduled buses from {stop}",
+  "@homeNoUpcomingDepartures": {
+    "description": "Message displayed when there are no scheduled buses remaining for the selected stop.",
+    "placeholders": {
+      "stop": {
+        "type": "String"
+      }
+    }
+  },
+
+  "homeNoMoreDeparturesForNow": "No more scheduled buses from {stop} for now",
+  "@homeNoMoreDeparturesForNow": {
+    "description": "Message displayed when there are no current departures remaining for the selected stop, but later departures exist.",
+    "placeholders": {
+      "stop": {
+        "type": "String"
+      }
+    }
+  },
+
+  "homeNextScheduledBus": "Next scheduled bus",
+  "@homeNextScheduledBus": {
+    "description": "Heading for nextLater departures when current departures are empty."
+  },
+
+  "homeTripDestination": "To {destination}",
+  "@homeTripDestination": {
+    "description": "Secondary line on an upcoming trip card showing the destination.",
+    "placeholders": {
+      "destination": {
+        "type": "String"
+      }
+    }
+  },
+
+  "homeTripRoute": "Route {shortName} · {longName}",
+  "@homeTripRoute": {
+    "description": "Tertiary line on an upcoming trip card showing route short and long names.",
+    "placeholders": {
+      "shortName": {
+        "type": "String"
+      },
+      "longName": {
+        "type": "String"
+      }
+    }
   },
 
   "moreTitle": "More",
