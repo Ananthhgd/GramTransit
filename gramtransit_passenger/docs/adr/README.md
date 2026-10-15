@@ -6,3 +6,4 @@ This directory contains Architecture Decision Records (ADRs) specific to the Gra
 - [0002: Riverpod and Navigation](0002-riverpod-and-navigation.md)
 - [0003: Environment Bootstrap and Lightweight Storage](0003-environment-bootstrap-and-lightweight-storage.md)
 - [0004: Testing, CI, and Architecture Guardrails](0004-testing-ci-and-architecture-guardrails.md)
+- [0005: Shared Transit Model and Offline Bundled Timetable](0005-offline-timetable-and-transit-model.md)

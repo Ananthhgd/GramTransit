@@ -2,7 +2,7 @@
 
 The Passenger app provides bus timings and transit information for rural village routes.
 
-**Status:** In development (Foundation phase).
+**Status:** In development (Phase 1 — Transit Catalog & Offline Timetable complete).
 
 ## Prerequisites
 
@@ -39,6 +39,6 @@ flutter test test/core/config/app_config_dart_define_test.dart --dart-define=APP
 
 ## Documentation
 
-- [Passenger Architecture v1.0](docs/architecture.md)
+- [Passenger Architecture](docs/architecture.md)
 - [Development Guide](docs/development-guide.md)
 - [Passenger ADRs](docs/adr/README.md)
