@@ -129,4 +129,77 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsThemeNotSaved =>
       'Theme changed, but it couldn\'t be saved. It will reset when you close the app.';
+
+  @override
+  String get homeTripCardOpenHint => 'Opens trip details';
+
+  @override
+  String get tripDetailsTitle => 'Trip details';
+
+  @override
+  String tripDetailsRouteLabel(String shortName) {
+    return 'Route $shortName';
+  }
+
+  @override
+  String tripDetailsOriginToDestination(String origin, String destination) {
+    return '$origin → $destination';
+  }
+
+  @override
+  String get tripDetailsRunsEveryDay => 'Runs every day';
+
+  @override
+  String tripDetailsRunsOn(String days) {
+    return 'Runs $days';
+  }
+
+  @override
+  String get tripDetailsScheduledTimesNote =>
+      'Scheduled times. Actual times may vary.';
+
+  @override
+  String get tripDetailsStopTimesTitle => 'Scheduled stop times';
+
+  @override
+  String get tripDetailsFirstStop => 'First stop';
+
+  @override
+  String get tripDetailsLastStop => 'Last stop';
+
+  @override
+  String tripDetailsDeparts(String time) {
+    return 'Departs $time';
+  }
+
+  @override
+  String tripDetailsArrives(String time) {
+    return 'Arrives $time';
+  }
+
+  @override
+  String get tripDetailsNextDayMarker => '+1';
+
+  @override
+  String get tripDetailsNextDaySemantics => 'next day';
+
+  @override
+  String tripDetailsScheduledDepartureSemantics(String time) {
+    return 'scheduled departure $time';
+  }
+
+  @override
+  String tripDetailsScheduledArrivalSemantics(String time) {
+    return 'scheduled arrival $time';
+  }
+
+  @override
+  String get tripNotFoundTitle => 'Trip not found';
+
+  @override
+  String get tripNotFoundMessage =>
+      'This trip isn\'t in the current timetable.';
+
+  @override
+  String get tripNotFoundAction => 'Go to Home';
 }

@@ -32,6 +32,7 @@ void main() {
           child: UpcomingTripCard(
             occurrence: sampleOccurrence,
             showDate: false,
+            onTap: () {},
           ),
         );
 
@@ -76,7 +77,11 @@ void main() {
     ) async {
       await pumpHomeTest(
         tester,
-        child: UpcomingTripCard(occurrence: sampleOccurrence, showDate: true),
+        child: UpcomingTripCard(
+          occurrence: sampleOccurrence,
+          showDate: true,
+          onTap: () {},
+        ),
       );
 
       // Dated primary: date + clock time
@@ -89,26 +94,52 @@ void main() {
     });
 
     testWidgets(
-      'card is strictly non-interactive (no tap action or chevrons)',
+      'card is interactive, exposes button semantics with hint, triggers onTap, and has decorative chevron',
       (tester) async {
+        var tapped = false;
         await pumpHomeTest(
           tester,
-          child: UpcomingTripCard(occurrence: sampleOccurrence),
+          child: UpcomingTripCard(
+            occurrence: sampleOccurrence,
+            onTap: () => tapped = true,
+          ),
         );
 
-        // Verify no InkWell or GestureDetector on the card
+        // Verify InkWell is present
         expect(
           find.descendant(
             of: find.byType(UpcomingTripCard),
             matching: find.byType(InkWell),
           ),
-          findsNothing,
+          findsOneWidget,
         );
 
-        // Verify no navigation chevrons
-        expect(find.byIcon(Icons.chevron_right), findsNothing);
-        expect(find.byIcon(Icons.arrow_forward_ios), findsNothing);
-        expect(find.byIcon(Icons.arrow_forward), findsNothing);
+        // Verify Semantics exposes button and hint
+        expect(
+          find.byWidgetPredicate(
+            (w) =>
+                w is Semantics &&
+                w.properties.button == true &&
+                w.properties.hint == 'Opens trip details',
+          ),
+          findsOneWidget,
+        );
+
+        // Verify tap triggers onTap
+        await tester.tap(find.byType(UpcomingTripCard));
+        expect(tapped, isTrue);
+
+        // Verify trailing chevron exists visually
+        expect(find.byIcon(Icons.chevron_right_rounded), findsOneWidget);
+
+        // Verify chevron is excluded from semantics
+        expect(
+          find.descendant(
+            of: find.byType(ExcludeSemantics),
+            matching: find.byIcon(Icons.chevron_right_rounded),
+          ),
+          findsOneWidget,
+        );
       },
     );
   });

@@ -309,6 +309,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Theme changed, but it couldn\'t be saved. It will reset when you close the app.'**
   String get settingsThemeNotSaved;
+
+  /// Accessibility hint for the upcoming trip card button indicating that tapping it opens trip details.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens trip details'**
+  String get homeTripCardOpenHint;
+
+  /// AppBar title for the Trip Details screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip details'**
+  String get tripDetailsTitle;
+
+  /// Route label in Trip Details header.
+  ///
+  /// In en, this message translates to:
+  /// **'Route {shortName}'**
+  String tripDetailsRouteLabel(String shortName);
+
+  /// Origin and destination pair in Trip Details header.
+  ///
+  /// In en, this message translates to:
+  /// **'{origin} → {destination}'**
+  String tripDetailsOriginToDestination(String origin, String destination);
+
+  /// Service days text when the trip runs on all seven days.
+  ///
+  /// In en, this message translates to:
+  /// **'Runs every day'**
+  String get tripDetailsRunsEveryDay;
+
+  /// Service days text when the trip runs on specific days of the week.
+  ///
+  /// In en, this message translates to:
+  /// **'Runs {days}'**
+  String tripDetailsRunsOn(String days);
+
+  /// Scheduled times disclosure note on the Trip Details screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled times. Actual times may vary.'**
+  String get tripDetailsScheduledTimesNote;
+
+  /// Section heading for the ordered list of scheduled stop times.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled stop times'**
+  String get tripDetailsStopTimesTitle;
+
+  /// Label indicating the first stop in the trip sequence.
+  ///
+  /// In en, this message translates to:
+  /// **'First stop'**
+  String get tripDetailsFirstStop;
+
+  /// Label indicating the last stop in the trip sequence.
+  ///
+  /// In en, this message translates to:
+  /// **'Last stop'**
+  String get tripDetailsLastStop;
+
+  /// Departure time label for a stop.
+  ///
+  /// In en, this message translates to:
+  /// **'Departs {time}'**
+  String tripDetailsDeparts(String time);
+
+  /// Arrival time label for a stop.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrives {time}'**
+  String tripDetailsArrives(String time);
+
+  /// Visible marker for times on the next day.
+  ///
+  /// In en, this message translates to:
+  /// **'+1'**
+  String get tripDetailsNextDayMarker;
+
+  /// Accessibility label for next day time indication.
+  ///
+  /// In en, this message translates to:
+  /// **'next day'**
+  String get tripDetailsNextDaySemantics;
+
+  /// Accessibility semantic text for scheduled departure time.
+  ///
+  /// In en, this message translates to:
+  /// **'scheduled departure {time}'**
+  String tripDetailsScheduledDepartureSemantics(String time);
+
+  /// Accessibility semantic text for scheduled arrival time.
+  ///
+  /// In en, this message translates to:
+  /// **'scheduled arrival {time}'**
+  String tripDetailsScheduledArrivalSemantics(String time);
+
+  /// Empty state title when a trip cannot be found in the timetable.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip not found'**
+  String get tripNotFoundTitle;
+
+  /// Empty state message when a trip cannot be found in the timetable.
+  ///
+  /// In en, this message translates to:
+  /// **'This trip isn\'t in the current timetable.'**
+  String get tripNotFoundMessage;
+
+  /// Button label to navigate back to Home from the trip not found state.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Home'**
+  String get tripNotFoundAction;
 }
 
 class _AppLocalizationsDelegate

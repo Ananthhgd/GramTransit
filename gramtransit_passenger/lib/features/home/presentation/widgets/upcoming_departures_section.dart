@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import 'package:gramtransit_passenger/app/router/app_routes.dart';
 
 import 'package:gramtransit_passenger/core/design_system/components/feedback/gt_empty_state.dart';
 import 'package:gramtransit_passenger/core/design_system/components/feedback/gt_error_view.dart';
@@ -160,6 +163,12 @@ class _UpcomingDeparturesSectionState
                   child: UpcomingTripCard(
                     occurrence: occurrence,
                     showDate: false,
+                    onTap: () {
+                      context.pushNamed(
+                        AppRoutes.tripDetails,
+                        pathParameters: {'tripId': occurrence.tripId.value},
+                      );
+                    },
                   ),
                 ),
             ],
@@ -207,6 +216,12 @@ class _UpcomingDeparturesSectionState
                   child: UpcomingTripCard(
                     occurrence: occurrence,
                     showDate: true,
+                    onTap: () {
+                      context.pushNamed(
+                        AppRoutes.tripDetails,
+                        pathParameters: {'tripId': occurrence.tripId.value},
+                      );
+                    },
                   ),
                 ),
             ],

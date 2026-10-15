@@ -201,5 +201,138 @@
   "settingsThemeNotSaved": "Theme changed, but it couldn't be saved. It will reset when you close the app.",
   "@settingsThemeNotSaved": {
     "description": "SnackBar message shown when the theme is changed successfully in memory but the preference could not be persisted to storage."
+  },
+
+  "homeTripCardOpenHint": "Opens trip details",
+  "@homeTripCardOpenHint": {
+    "description": "Accessibility hint for the upcoming trip card button indicating that tapping it opens trip details."
+  },
+
+  "tripDetailsTitle": "Trip details",
+  "@tripDetailsTitle": {
+    "description": "AppBar title for the Trip Details screen."
+  },
+
+  "tripDetailsRouteLabel": "Route {shortName}",
+  "@tripDetailsRouteLabel": {
+    "description": "Route label in Trip Details header.",
+    "placeholders": {
+      "shortName": {
+        "type": "String"
+      }
+    }
+  },
+
+  "tripDetailsOriginToDestination": "{origin} → {destination}",
+  "@tripDetailsOriginToDestination": {
+    "description": "Origin and destination pair in Trip Details header.",
+    "placeholders": {
+      "origin": {
+        "type": "String"
+      },
+      "destination": {
+        "type": "String"
+      }
+    }
+  },
+
+  "tripDetailsRunsEveryDay": "Runs every day",
+  "@tripDetailsRunsEveryDay": {
+    "description": "Service days text when the trip runs on all seven days."
+  },
+
+  "tripDetailsRunsOn": "Runs {days}",
+  "@tripDetailsRunsOn": {
+    "description": "Service days text when the trip runs on specific days of the week.",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+
+  "tripDetailsScheduledTimesNote": "Scheduled times. Actual times may vary.",
+  "@tripDetailsScheduledTimesNote": {
+    "description": "Scheduled times disclosure note on the Trip Details screen."
+  },
+
+  "tripDetailsStopTimesTitle": "Scheduled stop times",
+  "@tripDetailsStopTimesTitle": {
+    "description": "Section heading for the ordered list of scheduled stop times."
+  },
+
+  "tripDetailsFirstStop": "First stop",
+  "@tripDetailsFirstStop": {
+    "description": "Label indicating the first stop in the trip sequence."
+  },
+
+  "tripDetailsLastStop": "Last stop",
+  "@tripDetailsLastStop": {
+    "description": "Label indicating the last stop in the trip sequence."
+  },
+
+  "tripDetailsDeparts": "Departs {time}",
+  "@tripDetailsDeparts": {
+    "description": "Departure time label for a stop.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+
+  "tripDetailsArrives": "Arrives {time}",
+  "@tripDetailsArrives": {
+    "description": "Arrival time label for a stop.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+
+  "tripDetailsNextDayMarker": "+1",
+  "@tripDetailsNextDayMarker": {
+    "description": "Visible marker for times on the next day."
+  },
+
+  "tripDetailsNextDaySemantics": "next day",
+  "@tripDetailsNextDaySemantics": {
+    "description": "Accessibility label for next day time indication."
+  },
+
+  "tripDetailsScheduledDepartureSemantics": "scheduled departure {time}",
+  "@tripDetailsScheduledDepartureSemantics": {
+    "description": "Accessibility semantic text for scheduled departure time.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+
+  "tripDetailsScheduledArrivalSemantics": "scheduled arrival {time}",
+  "@tripDetailsScheduledArrivalSemantics": {
+    "description": "Accessibility semantic text for scheduled arrival time.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+
+  "tripNotFoundTitle": "Trip not found",
+  "@tripNotFoundTitle": {
+    "description": "Empty state title when a trip cannot be found in the timetable."
+  },
+
+  "tripNotFoundMessage": "This trip isn't in the current timetable.",
+  "@tripNotFoundMessage": {
+    "description": "Empty state message when a trip cannot be found in the timetable."
+  },
+
+  "tripNotFoundAction": "Go to Home",
+  "@tripNotFoundAction": {
+    "description": "Button label to navigate back to Home from the trip not found state."
   }
 }

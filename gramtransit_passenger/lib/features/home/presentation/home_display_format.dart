@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
+import 'package:gramtransit_passenger/core/l10n/date_time_formatting.dart';
 import 'package:gramtransit_passenger/features/transit/domain/localized_text.dart';
 
 /// Presentation formatting helpers scoped specifically to the Home feature.
@@ -12,17 +12,12 @@ import 'package:gramtransit_passenger/features/transit/domain/localized_text.dar
 ///
 /// Respects the user's 24-hour or 12-hour time preference from [MediaQuery].
 String formatScheduledTime(BuildContext context, DateTime dateTime) {
-  final timeOfDay = TimeOfDay.fromDateTime(dateTime);
-  return MaterialLocalizations.of(context).formatTimeOfDay(
-    timeOfDay,
-    alwaysUse24HourFormat: MediaQuery.alwaysUse24HourFormatOf(context),
-  );
+  return formatClockTime(context, TimeOfDay.fromDateTime(dateTime));
 }
 
 /// Formats a [DateTime] into a localized short date string (e.g. "Mon, Oct 14").
 String formatDepartureDate(BuildContext context, DateTime dateTime) {
-  final locale = Localizations.localeOf(context).toString();
-  return DateFormat.MMMEd(locale).format(dateTime);
+  return formatShortDate(context, dateTime);
 }
 
 /// Formats a [DateTime] for nextLater display containing date and clock time.

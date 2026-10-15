@@ -7,17 +7,22 @@ import 'package:gramtransit_passenger/features/transit/domain/trip_occurrence.da
 
 /// Dedicated presentation widget for an upcoming scheduled trip departure.
 ///
-/// Strictly non-interactive in P5. Does not include navigation affordances,
-/// tap handlers, or live status indicators.
+/// In P6, the whole card is an interactive Material tap surface that triggers
+/// [onTap] to navigate to trip details, featuring a decorative trailing chevron
+/// and accessible button semantics.
 class UpcomingTripCard extends StatelessWidget {
   const UpcomingTripCard({
     super.key,
     required this.occurrence,
+    required this.onTap,
     this.showDate = false,
   });
 
   /// The scheduled trip occurrence to display.
   final TripOccurrence occurrence;
+
+  /// Callback invoked when this card is tapped.
+  final VoidCallback onTap;
 
   /// Whether to display a localized date alongside the scheduled clock time.
   /// Typically true for [UpcomingTrips.nextLater] departures on later dates.
@@ -43,27 +48,48 @@ class UpcomingTripCard extends StatelessWidget {
     );
 
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(GtSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              departureText,
-              style: textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+      clipBehavior: Clip.antiAlias,
+      child: Semantics(
+        button: true,
+        hint: l10n.homeTripCardOpenHint,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(GtSpacing.lg),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        departureText,
+                        style: textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: GtSpacing.xs),
+                      Text(destinationText, style: textTheme.bodyLarge),
+                      const SizedBox(height: GtSpacing.xs),
+                      Text(
+                        routeText,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: GtSpacing.sm),
+                ExcludeSemantics(
+                  child: Icon(
+                    Icons.chevron_right_rounded,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: GtSpacing.xs),
-            Text(destinationText, style: textTheme.bodyLarge),
-            const SizedBox(height: GtSpacing.xs),
-            Text(
-              routeText,
-              style: textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
