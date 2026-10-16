@@ -423,6 +423,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Go to Home'**
   String get tripNotFoundAction;
+
+  /// AppBar title for the Journey Search screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Journey search'**
+  String get journeySearchTitle;
+
+  /// Label for the boarding stop selector on the Journey Search screen.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get journeySearchFromLabel;
+
+  /// Placeholder text for the boarding stop selector when no stop is selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose starting stop'**
+  String get journeySearchFromPlaceholder;
+
+  /// Label for the alighting/destination stop selector on the Journey Search screen.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get journeySearchToLabel;
+
+  /// Placeholder text for the alighting/destination stop selector when no stop is selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose destination stop'**
+  String get journeySearchToPlaceholder;
+
+  /// Accessibility label and tooltip for the swap stops button.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap stops'**
+  String get journeySearchSwapStops;
+
+  /// Accessibility label for clearing a selected stop.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear {stopType} stop'**
+  String journeySearchClearStop(String stopType);
+
+  /// Prompt displayed before both boarding and destination stops have been selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a starting stop and destination to view scheduled journeys.'**
+  String get journeySearchChooseStopsPrompt;
+
+  /// Empty state title when no direct scheduled journeys are found between the selected stops.
+  ///
+  /// In en, this message translates to:
+  /// **'No direct scheduled journeys'**
+  String get journeySearchNoDirectJourneysTitle;
+
+  /// Empty state message when no direct scheduled journeys are found between the selected stops.
+  ///
+  /// In en, this message translates to:
+  /// **'No direct scheduled buses were found between these stops in the current timetable.'**
+  String get journeySearchNoDirectJourneysMessage;
+
+  /// Notice indicating that all scheduled journeys for today have departed, but future scheduled journeys exist.
+  ///
+  /// In en, this message translates to:
+  /// **'No more scheduled journeys for today'**
+  String get journeySearchNoMoreJourneysToday;
+
+  /// Heading for later scheduled journeys when no departures remain for today.
+  ///
+  /// In en, this message translates to:
+  /// **'Next scheduled journeys'**
+  String get journeySearchNextScheduledJourneys;
+
+  /// Message displayed inside stop search when no stops match the search query.
+  ///
+  /// In en, this message translates to:
+  /// **'No stops found'**
+  String get journeySearchNoStopsFound;
+
+  /// Duration display for zero-duration scheduled journeys.
+  ///
+  /// In en, this message translates to:
+  /// **'Less than 1 min'**
+  String get journeyDurationLessThanOneMinute;
+
+  /// Duration in minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String journeyDurationMinutes(int minutes);
+
+  /// Duration in whole hours.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} hr'**
+  String journeyDurationHours(int hours);
+
+  /// Duration in hours and minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} hr {minutes} min'**
+  String journeyDurationHoursMinutes(int hours, int minutes);
+
+  /// Route short name and destination/headsign text.
+  ///
+  /// In en, this message translates to:
+  /// **'Route {shortName} · To {destination}'**
+  String journeyTripRoute(String shortName, String destination);
+
+  /// Route short name and long name fallback when headsign is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Route {shortName} · {longName}'**
+  String journeyTripRouteFallback(String shortName, String longName);
 }
 
 class _AppLocalizationsDelegate

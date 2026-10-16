@@ -202,4 +202,77 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tripNotFoundAction => 'Go to Home';
+
+  @override
+  String get journeySearchTitle => 'Journey search';
+
+  @override
+  String get journeySearchFromLabel => 'From';
+
+  @override
+  String get journeySearchFromPlaceholder => 'Choose starting stop';
+
+  @override
+  String get journeySearchToLabel => 'To';
+
+  @override
+  String get journeySearchToPlaceholder => 'Choose destination stop';
+
+  @override
+  String get journeySearchSwapStops => 'Swap stops';
+
+  @override
+  String journeySearchClearStop(String stopType) {
+    return 'Clear $stopType stop';
+  }
+
+  @override
+  String get journeySearchChooseStopsPrompt =>
+      'Select a starting stop and destination to view scheduled journeys.';
+
+  @override
+  String get journeySearchNoDirectJourneysTitle =>
+      'No direct scheduled journeys';
+
+  @override
+  String get journeySearchNoDirectJourneysMessage =>
+      'No direct scheduled buses were found between these stops in the current timetable.';
+
+  @override
+  String get journeySearchNoMoreJourneysToday =>
+      'No more scheduled journeys for today';
+
+  @override
+  String get journeySearchNextScheduledJourneys => 'Next scheduled journeys';
+
+  @override
+  String get journeySearchNoStopsFound => 'No stops found';
+
+  @override
+  String get journeyDurationLessThanOneMinute => 'Less than 1 min';
+
+  @override
+  String journeyDurationMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String journeyDurationHours(int hours) {
+    return '$hours hr';
+  }
+
+  @override
+  String journeyDurationHoursMinutes(int hours, int minutes) {
+    return '$hours hr $minutes min';
+  }
+
+  @override
+  String journeyTripRoute(String shortName, String destination) {
+    return 'Route $shortName · To $destination';
+  }
+
+  @override
+  String journeyTripRouteFallback(String shortName, String longName) {
+    return 'Route $shortName · $longName';
+  }
 }

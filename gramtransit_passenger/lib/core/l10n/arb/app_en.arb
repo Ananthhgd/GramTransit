@@ -334,5 +334,139 @@
   "tripNotFoundAction": "Go to Home",
   "@tripNotFoundAction": {
     "description": "Button label to navigate back to Home from the trip not found state."
+  },
+
+  "journeySearchTitle": "Journey search",
+  "@journeySearchTitle": {
+    "description": "AppBar title for the Journey Search screen."
+  },
+
+  "journeySearchFromLabel": "From",
+  "@journeySearchFromLabel": {
+    "description": "Label for the boarding stop selector on the Journey Search screen."
+  },
+
+  "journeySearchFromPlaceholder": "Choose starting stop",
+  "@journeySearchFromPlaceholder": {
+    "description": "Placeholder text for the boarding stop selector when no stop is selected."
+  },
+
+  "journeySearchToLabel": "To",
+  "@journeySearchToLabel": {
+    "description": "Label for the alighting/destination stop selector on the Journey Search screen."
+  },
+
+  "journeySearchToPlaceholder": "Choose destination stop",
+  "@journeySearchToPlaceholder": {
+    "description": "Placeholder text for the alighting/destination stop selector when no stop is selected."
+  },
+
+  "journeySearchSwapStops": "Swap stops",
+  "@journeySearchSwapStops": {
+    "description": "Accessibility label and tooltip for the swap stops button."
+  },
+
+  "journeySearchClearStop": "Clear {stopType} stop",
+  "@journeySearchClearStop": {
+    "description": "Accessibility label for clearing a selected stop.",
+    "placeholders": {
+      "stopType": {
+        "type": "String"
+      }
+    }
+  },
+
+  "journeySearchChooseStopsPrompt": "Select a starting stop and destination to view scheduled journeys.",
+  "@journeySearchChooseStopsPrompt": {
+    "description": "Prompt displayed before both boarding and destination stops have been selected."
+  },
+
+  "journeySearchNoDirectJourneysTitle": "No direct scheduled journeys",
+  "@journeySearchNoDirectJourneysTitle": {
+    "description": "Empty state title when no direct scheduled journeys are found between the selected stops."
+  },
+
+  "journeySearchNoDirectJourneysMessage": "No direct scheduled buses were found between these stops in the current timetable.",
+  "@journeySearchNoDirectJourneysMessage": {
+    "description": "Empty state message when no direct scheduled journeys are found between the selected stops."
+  },
+
+  "journeySearchNoMoreJourneysToday": "No more scheduled journeys for today",
+  "@journeySearchNoMoreJourneysToday": {
+    "description": "Notice indicating that all scheduled journeys for today have departed, but future scheduled journeys exist."
+  },
+
+  "journeySearchNextScheduledJourneys": "Next scheduled journeys",
+  "@journeySearchNextScheduledJourneys": {
+    "description": "Heading for later scheduled journeys when no departures remain for today."
+  },
+
+  "journeySearchNoStopsFound": "No stops found",
+  "@journeySearchNoStopsFound": {
+    "description": "Message displayed inside stop search when no stops match the search query."
+  },
+
+  "journeyDurationLessThanOneMinute": "Less than 1 min",
+  "@journeyDurationLessThanOneMinute": {
+    "description": "Duration display for zero-duration scheduled journeys."
+  },
+
+  "journeyDurationMinutes": "{minutes} min",
+  "@journeyDurationMinutes": {
+    "description": "Duration in minutes.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+
+  "journeyDurationHours": "{hours} hr",
+  "@journeyDurationHours": {
+    "description": "Duration in whole hours.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+
+  "journeyDurationHoursMinutes": "{hours} hr {minutes} min",
+  "@journeyDurationHoursMinutes": {
+    "description": "Duration in hours and minutes.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+
+  "journeyTripRoute": "Route {shortName} · To {destination}",
+  "@journeyTripRoute": {
+    "description": "Route short name and destination/headsign text.",
+    "placeholders": {
+      "shortName": {
+        "type": "String"
+      },
+      "destination": {
+        "type": "String"
+      }
+    }
+  },
+
+  "journeyTripRouteFallback": "Route {shortName} · {longName}",
+  "@journeyTripRouteFallback": {
+    "description": "Route short name and long name fallback when headsign is empty.",
+    "placeholders": {
+      "shortName": {
+        "type": "String"
+      },
+      "longName": {
+        "type": "String"
+      }
+    }
   }
 }
