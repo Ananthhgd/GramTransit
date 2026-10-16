@@ -20,6 +20,31 @@ import 'package:gramtransit_passenger/features/transit/providers/transit_provide
 
 import '../home_test_support.dart';
 
+class _ControlledUpcomingDeparturesHarness extends StatefulWidget {
+  const _ControlledUpcomingDeparturesHarness();
+
+  @override
+  State<_ControlledUpcomingDeparturesHarness> createState() =>
+      _ControlledUpcomingDeparturesHarnessState();
+}
+
+class _ControlledUpcomingDeparturesHarnessState
+    extends State<_ControlledUpcomingDeparturesHarness> {
+  StopId? _selectedStopId;
+
+  @override
+  Widget build(BuildContext context) {
+    return UpcomingDeparturesSection(
+      selectedStopId: _selectedStopId,
+      onStopSelected: (stopId) {
+        setState(() {
+          _selectedStopId = stopId;
+        });
+      },
+    );
+  }
+}
+
 void main() {
   group('UpcomingDeparturesSection', () {
     testWidgets(
@@ -30,7 +55,7 @@ void main() {
 
         await pumpHomeTest(
           tester,
-          child: const UpcomingDeparturesSection(),
+          child: const _ControlledUpcomingDeparturesHarness(),
           overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
         );
 
@@ -62,7 +87,7 @@ void main() {
 
         await pumpHomeTest(
           tester,
-          child: const UpcomingDeparturesSection(),
+          child: const _ControlledUpcomingDeparturesHarness(),
           overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
         );
         await tester.pumpAndSettle();
@@ -107,7 +132,7 @@ void main() {
 
       await pumpHomeTest(
         tester,
-        child: const UpcomingDeparturesSection(),
+        child: const _ControlledUpcomingDeparturesHarness(),
         overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
       );
       await tester.pumpAndSettle();
@@ -126,7 +151,7 @@ void main() {
 
         await pumpHomeTest(
           tester,
-          child: const UpcomingDeparturesSection(),
+          child: const _ControlledUpcomingDeparturesHarness(),
           overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
         );
         await tester.pumpAndSettle();
@@ -166,7 +191,7 @@ void main() {
 
         await pumpHomeTest(
           tester,
-          child: const UpcomingDeparturesSection(),
+          child: const _ControlledUpcomingDeparturesHarness(),
           overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
         );
         await tester.pumpAndSettle();
@@ -187,7 +212,7 @@ void main() {
 
         await pumpHomeTest(
           tester,
-          child: const UpcomingDeparturesSection(),
+          child: const _ControlledUpcomingDeparturesHarness(),
           fixedNow: DateTime(2026, 10, 14, 7, 50),
           overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
         );
@@ -258,7 +283,7 @@ void main() {
 
         await pumpHomeTest(
           tester,
-          child: const UpcomingDeparturesSection(),
+          child: const _ControlledUpcomingDeparturesHarness(),
           fixedNow: DateTime(2026, 10, 14, 7, 50),
           overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
         );
@@ -285,7 +310,7 @@ void main() {
 
         await pumpHomeTest(
           tester,
-          child: const UpcomingDeparturesSection(),
+          child: const _ControlledUpcomingDeparturesHarness(),
           fixedNow: DateTime(2026, 10, 14, 7, 50),
           overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
         );
@@ -334,7 +359,7 @@ void main() {
         // Now is Wednesday Oct 14 2026, 7:50 AM
         await pumpHomeTest(
           tester,
-          child: const UpcomingDeparturesSection(),
+          child: const _ControlledUpcomingDeparturesHarness(),
           fixedNow: DateTime(2026, 10, 14, 7, 50),
           overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
         );
@@ -379,7 +404,7 @@ void main() {
 
       await pumpHomeTest(
         tester,
-        child: const UpcomingDeparturesSection(),
+        child: const _ControlledUpcomingDeparturesHarness(),
         fixedNow: DateTime(2026, 10, 14, 7, 50),
         overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
       );
@@ -407,7 +432,7 @@ void main() {
         // Light theme test
         await pumpHomeTest(
           tester,
-          child: const UpcomingDeparturesSection(),
+          child: const _ControlledUpcomingDeparturesHarness(),
           themeMode: ThemeMode.light,
           overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
         );
@@ -417,7 +442,7 @@ void main() {
         // Dark theme test
         await pumpHomeTest(
           tester,
-          child: const UpcomingDeparturesSection(),
+          child: const _ControlledUpcomingDeparturesHarness(),
           themeMode: ThemeMode.dark,
           overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
         );
@@ -427,12 +452,90 @@ void main() {
         // Large text scaling test (2.0x text scale)
         await pumpHomeTest(
           tester,
-          child: const UpcomingDeparturesSection(),
+          child: const _ControlledUpcomingDeparturesHarness(),
           textScaleFactor: 2.0,
           overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
         );
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
+      },
+    );
+
+    testWidgets(
+      'M. Controlled behavior: directly renders trips for given selectedStopId without interaction',
+      (tester) async {
+        final timetable = createTestTimetable();
+        final fakeRepo = FakeTimetableRepository(timetable: timetable);
+
+        await pumpHomeTest(
+          tester,
+          child: UpcomingDeparturesSection(
+            selectedStopId: StopId('stop_1'),
+            onStopSelected: (_) {},
+          ),
+          fixedNow: DateTime(2026, 10, 14, 7, 50),
+          overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.byType(UpcomingTripCard), findsOneWidget);
+        expect(find.text('8:05 AM'), findsOneWidget);
+        expect(find.text('To North Station'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'N. Controlled behavior: invoking selector triggers onStopSelected callback',
+      (tester) async {
+        final timetable = createTestTimetable();
+        final fakeRepo = FakeTimetableRepository(timetable: timetable);
+        StopId? reportedStopId;
+
+        await pumpHomeTest(
+          tester,
+          child: UpcomingDeparturesSection(
+            selectedStopId: null,
+            onStopSelected: (stopId) {
+              reportedStopId = stopId;
+            },
+          ),
+          fixedNow: DateTime(2026, 10, 14, 7, 50),
+          overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
+        );
+        await tester.pumpAndSettle();
+
+        // Tap dropdown and select City Center
+        await tester.tap(find.byType(DropdownButton<StopId>));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('City Center').last);
+        await tester.pumpAndSettle();
+
+        expect(reportedStopId, equals(StopId('stop_1')));
+      },
+    );
+
+    testWidgets(
+      'O. Controlled behavior: null selection shows choose stop prompt and does not query trips',
+      (tester) async {
+        final timetable = createTestTimetable();
+        final fakeRepo = FakeTimetableRepository(timetable: timetable);
+
+        await pumpHomeTest(
+          tester,
+          child: UpcomingDeparturesSection(
+            selectedStopId: null,
+            onStopSelected: (_) {},
+          ),
+          fixedNow: DateTime(2026, 10, 14, 7, 50),
+          overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
+        );
+        await tester.pumpAndSettle();
+
+        expect(
+          find.text('Choose a stop to see scheduled departures.'),
+          findsOneWidget,
+        );
+        expect(find.byType(UpcomingTripCard), findsNothing);
       },
     );
   });

@@ -20,22 +20,20 @@ import 'package:gramtransit_passenger/features/transit/domain/ids.dart';
 import 'package:gramtransit_passenger/features/transit/domain/transit_models.dart';
 import 'package:gramtransit_passenger/features/transit/providers/transit_providers.dart';
 
-/// The P5 Home upcoming departures section backed by domain timetable and trips providers.
+/// The Home upcoming departures section backed by domain timetable and trips providers.
 ///
-/// Encapsulates private, session-scoped stop selection without an app-wide provider.
-class UpcomingDeparturesSection extends ConsumerStatefulWidget {
-  const UpcomingDeparturesSection({super.key});
+/// Controlled by parent for [selectedStopId] and [onStopSelected] (Model H-A).
+class UpcomingDeparturesSection extends ConsumerWidget {
+  const UpcomingDeparturesSection({
+    super.key,
+    required this.selectedStopId,
+    required this.onStopSelected,
+  });
 
-  @override
-  ConsumerState<UpcomingDeparturesSection> createState() =>
-      _UpcomingDeparturesSectionState();
-}
+  final StopId? selectedStopId;
+  final ValueChanged<StopId?> onStopSelected;
 
-class _UpcomingDeparturesSectionState
-    extends ConsumerState<UpcomingDeparturesSection> {
-  StopId? _selectedStopId;
-
-  String _resolveErrorMessage(Object error, BuildContext context) {
+  static String _resolveErrorMessage(Object error, BuildContext context) {
     if (error is AppFailure) {
       return AppFailureMessage.of(error, context.l10n);
     }
@@ -43,7 +41,7 @@ class _UpcomingDeparturesSectionState
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final textTheme = Theme.of(context).textTheme;
     final timetableAsync = ref.watch(timetableProvider);
@@ -84,15 +82,11 @@ class _UpcomingDeparturesSectionState
                 const SizedBox(height: GtSpacing.md),
                 HomeStopSelector(
                   stops: timetable.stops,
-                  selectedStopId: _selectedStopId,
-                  onStopSelected: (stopId) {
-                    setState(() {
-                      _selectedStopId = stopId;
-                    });
-                  },
+                  selectedStopId: selectedStopId,
+                  onStopSelected: onStopSelected,
                 ),
                 const SizedBox(height: GtSpacing.lg),
-                _buildResultsArea(context, timetable),
+                _buildResultsArea(context, ref, timetable),
               ],
             );
           },
@@ -101,12 +95,16 @@ class _UpcomingDeparturesSectionState
     );
   }
 
-  Widget _buildResultsArea(BuildContext context, Timetable timetable) {
+  Widget _buildResultsArea(
+    BuildContext context,
+    WidgetRef ref,
+    Timetable timetable,
+  ) {
     final l10n = context.l10n;
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    if (_selectedStopId == null) {
+    if (selectedStopId == null) {
       return Card(
         child: Padding(
           padding: const EdgeInsets.all(GtSpacing.xl),
@@ -133,7 +131,7 @@ class _UpcomingDeparturesSectionState
       );
     }
 
-    final upcomingAsync = ref.watch(upcomingTripsProvider(_selectedStopId!));
+    final upcomingAsync = ref.watch(upcomingTripsProvider(selectedStopId!));
 
     return upcomingAsync.when(
       loading: () => const Padding(
@@ -142,11 +140,11 @@ class _UpcomingDeparturesSectionState
       ),
       error: (error, _) => GtErrorView(
         message: l10n.errorUnexpected,
-        onRetry: () => ref.invalidate(upcomingTripsProvider(_selectedStopId!)),
+        onRetry: () => ref.invalidate(upcomingTripsProvider(selectedStopId!)),
       ),
       data: (upcoming) {
         final selectedStop = timetable.stops.cast<TransitStop?>().firstWhere(
-          (s) => s?.id == _selectedStopId,
+          (s) => s?.id == selectedStopId,
           orElse: () => null,
         );
         final stopName = selectedStop != null
