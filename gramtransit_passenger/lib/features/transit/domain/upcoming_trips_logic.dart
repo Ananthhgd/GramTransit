@@ -1,6 +1,9 @@
 import 'ids.dart';
+import 'scheduled_journey.dart';
 import 'transit_models.dart';
 import 'trip_occurrence.dart';
+
+part 'upcoming_journeys_logic.dart';
 
 /// Private candidate representation of a boardable trip occurrence at a queried stop.
 final class _BoardingCandidate {
@@ -9,6 +12,8 @@ final class _BoardingCandidate {
   final int boardingStopIndex;
   final StopTime boardingStopTime;
   final DateTime scheduledDeparture;
+  final int? alightingStopIndex;
+  final StopTime? alightingStopTime;
 
   const _BoardingCandidate({
     required this.trip,
@@ -16,19 +21,24 @@ final class _BoardingCandidate {
     required this.boardingStopIndex,
     required this.boardingStopTime,
     required this.scheduledDeparture,
+    this.alightingStopIndex,
+    this.alightingStopTime,
   });
 }
 
 /// Evaluates boardable trip candidates across a range of day offsets relative to [queryMinute].
 ///
 /// Filters for service-day operation, non-terminal stop boarding, and unpassed departures
-/// (inclusive of [queryMinute]). Candidates are sorted deterministically by [scheduledDeparture].
+/// (inclusive of [queryMinute]). When [alightingStopId] is provided, additionally requires
+/// that the trip serves [alightingStopId] at a downstream stop index (> [boardingStopId] index).
+/// Candidates are sorted deterministically by [scheduledDeparture].
 List<_BoardingCandidate> _evaluateBoardingCandidates({
   required Timetable timetable,
   required StopId boardingStopId,
   required DateTime queryMinute,
   required int startDayOffset,
   required int endDayOffset,
+  StopId? alightingStopId,
 }) {
   final List<_BoardingCandidate> candidates = [];
   final DateTime baseDate = DateTime(
@@ -51,6 +61,17 @@ List<_BoardingCandidate> _evaluateBoardingCandidates({
       // Exclude terminal / final stop as passengers cannot board.
       if (stopIndex == trip.stopTimes.length - 1) continue;
 
+      int? alightingIndex;
+      StopTime? alightingStopTime;
+      if (alightingStopId != null) {
+        alightingIndex = trip.stopTimes.indexWhere(
+          (st) => st.stopId == alightingStopId,
+        );
+        if (alightingIndex == -1) continue;
+        if (alightingIndex <= stopIndex) continue;
+        alightingStopTime = trip.stopTimes[alightingIndex];
+      }
+
       final stopTime = trip.stopTimes[stopIndex];
       final departureTimeAbsolute = stopTime.departureTime.toDateTime(
         candidateDate,
@@ -65,6 +86,8 @@ List<_BoardingCandidate> _evaluateBoardingCandidates({
           boardingStopIndex: stopIndex,
           boardingStopTime: stopTime,
           scheduledDeparture: departureTimeAbsolute,
+          alightingStopIndex: alightingIndex,
+          alightingStopTime: alightingStopTime,
         ),
       );
     }
