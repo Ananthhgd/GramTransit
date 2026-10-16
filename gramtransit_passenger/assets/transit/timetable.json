@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "datasetVersion": "sample-v1",
+  "datasetVersion": "sample-v2",
   "isSampleData": true,
   "stops": [
     {
@@ -14,6 +14,18 @@
       "name": {
         "en": "North Station"
       }
+    },
+    {
+      "id": "stop_3",
+      "name": {
+        "en": "Market Square"
+      }
+    },
+    {
+      "id": "stop_4",
+      "name": {
+        "en": "Lake View"
+      }
     }
   ],
   "routes": [
@@ -24,6 +36,15 @@
       },
       "longName": {
         "en": "City Center - North Station"
+      }
+    },
+    {
+      "id": "route_2",
+      "shortName": {
+        "en": "2B"
+      },
+      "longName": {
+        "en": "Lake View - City Center"
       }
     }
   ],
@@ -59,6 +80,67 @@
           "stopId": "stop_2",
           "arrivalTime": "24:10",
           "departureTime": "24:15"
+        }
+      ]
+    },
+    {
+      "id": "trip_3",
+      "routeId": "route_1",
+      "serviceDays": ["mon", "tue", "wed", "thu", "fri", "sat"],
+      "stopTimes": [
+        {
+          "stopId": "stop_1",
+          "arrivalTime": "12:00",
+          "departureTime": "12:00"
+        },
+        {
+          "stopId": "stop_3",
+          "arrivalTime": "12:10",
+          "departureTime": "12:10"
+        },
+        {
+          "stopId": "stop_2",
+          "arrivalTime": "12:25",
+          "departureTime": "12:25"
+        }
+      ]
+    },
+    {
+      "id": "trip_4",
+      "routeId": "route_1",
+      "serviceDays": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+      "stopTimes": [
+        {
+          "stopId": "stop_2",
+          "arrivalTime": "17:00",
+          "departureTime": "17:00"
+        },
+        {
+          "stopId": "stop_3",
+          "arrivalTime": "17:15",
+          "departureTime": "17:15"
+        },
+        {
+          "stopId": "stop_1",
+          "arrivalTime": "17:30",
+          "departureTime": "17:30"
+        }
+      ]
+    },
+    {
+      "id": "trip_5",
+      "routeId": "route_2",
+      "serviceDays": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+      "stopTimes": [
+        {
+          "stopId": "stop_4",
+          "arrivalTime": "09:00",
+          "departureTime": "09:00"
+        },
+        {
+          "stopId": "stop_1",
+          "arrivalTime": "09:20",
+          "departureTime": "09:20"
         }
       ]
     }
