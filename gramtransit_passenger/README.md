@@ -2,7 +2,16 @@
 
 The Passenger app provides bus timings and transit information for rural village routes.
 
-**Status:** In development (Phase 1 — Transit Catalog & Offline Timetable complete).
+**Status:** In development (Phase 2 — Direct Journey Discovery & Journey Search complete; Phase 1 — Transit Catalog & Offline Timetable complete).
+
+## Implemented Capabilities
+
+- **Offline Scheduled Departures:** View upcoming bus departures from a selected boarding stop evaluated against bundled timetable data.
+- **Direct Journey Discovery:** Search scheduled direct journeys between boarding (`From`) and destination (`To`) stops without requiring live connectivity.
+- **Offline Stop Search:** Fast, deterministic English stop search with instant filtering and ranking.
+- **Top-Level Journey Routing:** Dedicated `/journeys` screen supporting direct deep linking and query initialization (`/journeys?from=<StopId>&to=<StopId>`).
+- **Schedule-First & Guest-First:** Complete offline functionality with bundled sample timetable data (`sample-v2`). No user login, no backend API, and no GPS/maps required.
+- **Scheduled Information Only:** Displays scheduled timetable timings; does not provide live vehicle positions, real-time delays, or multi-leg transfers.
 
 ## Prerequisites
 

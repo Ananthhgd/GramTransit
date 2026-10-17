@@ -41,25 +41,44 @@ flutter test test/core/config/app_config_dart_define_test.dart --dart-define=APP
 
 ## Using the Transit Model
 
-- **Canonical Entities:** Always consume domain models (`TransitStop`, `TransitRoute`, `ScheduledTrip`, `Timetable`) from `lib/features/transit/domain/` and providers from `lib/features/transit/providers/`.
-- **No Competing Models:** Never create feature-local classes representing stops, routes, or trips.
-- **Domain Logic Placement:** Calculation of boardable departures, service-day matching, and terminal-stop filtering belong in pure domain functions (`findUpcomingTrips` in `upcoming_trips_logic.dart`), never inside UI widget trees or controllers.
+- **Canonical Entities:** Always consume domain models (`TransitStop`, `TransitRoute`, `ScheduledTrip`, `Timetable`, `ScheduledJourney`, `UpcomingJourneys`) from `lib/features/transit/domain/` and shared providers (`timetableProvider`, `upcomingTripsProvider`, `stopSearchProvider`, `upcomingJourneysProvider`) from `lib/features/transit/providers/`.
+- **No Competing Models:** Never create feature-local classes representing stops, routes, trips, or scheduled journeys.
+- **Domain Logic Placement:** Calculation of boardable departures, direct journey discovery, and stop search belong in pure domain functions (`findUpcomingTrips`, `findUpcomingJourneys` in `upcoming_trips_logic.dart`, and `searchStops` in `stop_search.dart`), never inside UI widget trees or controllers. Never perform timetable parsing, candidate filtering, or trip sequencing in UI widgets.
+- **Provider Queries:** When reading `stopSearchProvider` or `upcomingJourneysProvider`, always pass immutable parameter keys (`StopSearchQuery` and `JourneyQuery`).
+
+## Working with Journey Search
+
+- **Feature Location:** Journey Search presentation code lives in `lib/features/journey_search/presentation/` (`journey_search_screen.dart`, `widgets/`).
+- **No Feature-Level Riverpod Controller:** Journey Search does not have a Riverpod view-model or state controller. Local From/To selection is managed as widget state within `_JourneySearchScreenState`, while results are derived reactively from `upcomingJourneysProvider`.
+- **Home State Ownership (Model H-A):** `HomeScreen` owns session-local `_selectedStopId` and passes it to `UpcomingDeparturesSection` via parameters. Tapping the search entry passes `from=<StopId>` via query parameters. Home selection is not stored in a global Riverpod provider and is not persisted across app restarts.
+- **Two-Stage Route & Query Initialization:**
+  - *Stage 1 (Router level):* `parseQueryStopId` in `lib/app/router/app_router.dart` syntactically validates `from` and `to` query parameters, returning a `StopId` or `null`. The router never accesses the timetable, throws exceptions, or redirects based on data validity.
+  - *Stage 2 (Screen level):* `JourneySearchScreen` performs a one-time semantic sanitization against the loaded timetable (`_didSanitizeInitialQuery`). Unknown stops are cleared to `null`; identical From and To values retain From and clear To. This sanitization is silent and does not mutate the route URL.
+- **Journey Duration Formatting:** Zero-duration journeys (`Duration.zero`) must be formatted using `formatJourneyDuration` as `"Less than 1 min"`.
 
 ## Scheduled-Information Copy
 
-- **Schedule Disclosure:** Any screen displaying departure or arrival times must include the persistent disclosure: `"Scheduled times. Actual times may vary."` (`ScheduledTimesNote` or `TripScheduledTimesNote`).
-- **No Realtime Implications:** Contributors must never write UI copy that falsely implies live vehicle tracking, punctuality, or current delays. Avoid words like *"live"*, *"arriving in 5 mins"*, *"delayed"*, or *"on time"*. Phase 1 displays scheduled timings only.
+- **Schedule Disclosure:** Any screen displaying departure, arrival, or journey times must include the persistent disclosure: `"Scheduled times. Actual times may vary."` (`ScheduledTimesNote`, `TripScheduledTimesNote`, or `JourneyScheduledTimesNote`).
+- **No Realtime Implications:** Contributors must never write UI copy that falsely implies live vehicle tracking, punctuality, or current delays. Avoid words like *"live"*, *"arriving in 5 mins"*, *"delayed"*, or *"on time"*. Phase 1 and Phase 2 display scheduled timings only.
 
 ## Proper Names and Formatting
 
-- **Transit Names:** Stop names and route names must be encapsulated in `LocalizedText`. In Phase 1, UI resolves `LocalizedText.english`.
+- **Transit Names:** Stop names and route names must be encapsulated in `LocalizedText`. In Phase 1 and Phase 2, UI resolves `LocalizedText.english`.
 - **UI Strings:** All static UI text must come from `AppLocalizations` via ARB files (`lib/core/l10n/arb/app_en.arb`).
-- **Date and Time Formatting:** Use the shared helpers in `lib/core/l10n/date_time_formatting.dart` (`formatClockTime`, `formatShortDate`, `formatShortWeekday`) to respect system 12/24-hour preferences and locale formats.
+- **Date and Time Formatting:** Use the shared helpers in `lib/core/l10n/date_time_formatting.dart` (`formatClockTime`, `formatShortDate`, `formatShortWeekday`) to respect system 12/24-hour preferences and locale formats. For journey cards, use `journey_display_format.dart`.
 
 ## Feature-Local Test Support
 
 - When writing feature-level tests, place test fixtures and harness helpers in `test/features/<feature>/<feature>_test_support.dart` (for example, `home_test_support.dart` or `trip_details_test_support.dart`).
 - Keep shared fakes in `test/helpers/fakes/` and widget helpers in `test/helpers/widget_pump_helper.dart`. Do not invent alternative test-support structures.
+- **Focused Journey Tests:** Run targeted test suites during feature development:
+  ```bash
+  flutter test test/features/journey_search/
+  flutter test test/app/journey_search_navigation_test.dart
+  flutter test test/features/transit/domain/upcoming_journeys_logic_test.dart
+  flutter test test/features/transit/domain/stop_search_test.dart
+  flutter test test/features/transit/providers/journey_search_providers_test.dart
+  ```
 
 ## General Rules
 
