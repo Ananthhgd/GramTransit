@@ -179,6 +179,7 @@ Future<void> pumpJourneySearchTest(
   WidgetTester tester, {
   Widget? child,
   StopId? initialBoardingStopId,
+  StopId? initialAlightingStopId,
   ValueChanged<ScheduledJourney>? onJourneySelected,
   List<dynamic> overrides = const [],
   ThemeMode themeMode = ThemeMode.light,
@@ -214,6 +215,7 @@ Future<void> pumpJourneySearchTest(
               child ??
               JourneySearchScreen(
                 initialBoardingStopId: initialBoardingStopId,
+                initialAlightingStopId: initialAlightingStopId,
                 onJourneySelected: onJourneySelected,
               ),
         ),

@@ -6,6 +6,7 @@ import 'package:gramtransit_passenger/app/router/app_routes.dart';
 import 'package:gramtransit_passenger/app/router/app_shell.dart';
 import 'package:gramtransit_passenger/app/router/route_not_found_screen.dart';
 import 'package:gramtransit_passenger/features/home/presentation/home_screen.dart';
+import 'package:gramtransit_passenger/features/journey_search/presentation/journey_search_screen.dart';
 import 'package:gramtransit_passenger/features/more/presentation/more_screen.dart';
 import 'package:gramtransit_passenger/features/settings/presentation/settings_screen.dart';
 import 'package:gramtransit_passenger/features/transit/domain/ids.dart';
@@ -15,6 +16,20 @@ import 'package:gramtransit_passenger/features/trip_details/presentation/trip_de
 // as a GoRouter [redirect] callback once the authentication domain is introduced.
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
+
+/// Parses an optional route query parameter into a [StopId].
+///
+/// Returns `null` if [raw] is absent, empty, or fails [StopId] syntax validation.
+/// Does not perform timetable lookups or throw exceptions.
+@visibleForTesting
+StopId? parseQueryStopId(String? raw) {
+  if (raw == null) return null;
+  try {
+    return StopId(raw);
+  } on ArgumentError {
+    return null;
+  }
+}
 
 /// Application-wide [GoRouter] provider.
 ///
@@ -75,6 +90,20 @@ final routerProvider = Provider<GoRouter>((ref) {
             }
           }
           return TripDetailsScreen(tripId: tripId);
+        },
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootNavigatorKey,
+        path: AppRoutes.journeysPath,
+        name: AppRoutes.journeys,
+        builder: (context, state) {
+          final fromParam = state.uri.queryParameters['from'];
+          final toParam = state.uri.queryParameters['to'];
+
+          return JourneySearchScreen(
+            initialBoardingStopId: parseQueryStopId(fromParam),
+            initialAlightingStopId: parseQueryStopId(toParam),
+          );
         },
       ),
     ],

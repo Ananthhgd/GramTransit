@@ -249,13 +249,19 @@ void main() {
     );
 
     testWidgets(
-      '13. SearchEntryPlaceholder remains a non-navigational placeholder in P2.4',
+      '13. SearchEntryPlaceholder triggers search navigation callback with selected stop in P2.6',
       (tester) async {
         final timetable = createTestTimetable();
         final fakeRepo = FakeTimetableRepository(timetable: timetable);
+        StopId? searchedStopId;
+        var searchTapped = false;
 
         await pumpHomeTest(
           tester,
+          onSearchTap: (stopId) {
+            searchTapped = true;
+            searchedStopId = stopId;
+          },
           overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
         );
         await tester.pumpAndSettle();
@@ -263,12 +269,25 @@ void main() {
         expect(find.byType(SearchEntryPlaceholder), findsOneWidget);
         expect(find.text('Where are you going?'), findsOneWidget);
 
-        // Tap the placeholder — verify no navigation occurs
+        // Tap the placeholder with no stop selected
         await tester.tap(find.byType(SearchEntryPlaceholder));
         await tester.pumpAndSettle();
 
-        // Still on HomeScreen
-        expect(find.byType(HomeScreen), findsOneWidget);
+        expect(searchTapped, isTrue);
+        expect(searchedStopId, isNull);
+
+        // Select a stop and tap again
+        await tester.tap(find.byType(DropdownButton<StopId>));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('City Center').last);
+        await tester.pumpAndSettle();
+
+        searchTapped = false;
+        await tester.tap(find.byType(SearchEntryPlaceholder));
+        await tester.pumpAndSettle();
+
+        expect(searchTapped, isTrue);
+        expect(searchedStopId, StopId('stop_1'));
       },
     );
   });

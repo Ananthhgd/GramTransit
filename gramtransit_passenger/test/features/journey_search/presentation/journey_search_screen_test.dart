@@ -678,5 +678,303 @@ void main() {
         expect(find.byType(JourneySearchScreen), findsOneWidget);
       },
     );
+
+    testWidgets(
+      'R. Initial alighting stop: valid initialAlightingStopId displays To and leaves From unselected',
+      (tester) async {
+        final timetable = createJourneyTestTimetable();
+        final fakeRepo = FakeTimetableRepository(timetable: timetable);
+
+        await pumpJourneySearchTest(
+          tester,
+          initialAlightingStopId: StopId('stop_central'),
+          overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
+        );
+        await tester.pumpAndSettle();
+
+        // From is unselected
+        expect(find.text('Choose starting stop'), findsOneWidget);
+        // To is prefilled with Central Station
+        expect(
+          find.descendant(
+            of: findToSearchBar(),
+            matching: find.text('Central Station'),
+          ),
+          findsOneWidget,
+        );
+        // Guidance prompt shown since From is null
+        expect(
+          find.text(
+            'Select a starting stop and destination to view scheduled journeys.',
+          ),
+          findsOneWidget,
+        );
+      },
+    );
+
+    testWidgets(
+      'S. Stage 2 semantic sanitization: unknown From is cleared after timetable load',
+      (tester) async {
+        final timetable = createJourneyTestTimetable();
+        final fakeRepo = FakeTimetableRepository(timetable: timetable);
+
+        await pumpJourneySearchTest(
+          tester,
+          initialBoardingStopId: StopId('unknown_stop_999'),
+          initialAlightingStopId: StopId('stop_central'),
+          overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
+        );
+        await tester.pumpAndSettle();
+
+        // From is cleared (unselected placeholder shown, no error screen)
+        expect(find.byType(GtErrorView), findsNothing);
+        expect(find.text('Choose starting stop'), findsOneWidget);
+        // To remains valid Central Station
+        expect(
+          find.descendant(
+            of: findToSearchBar(),
+            matching: find.text('Central Station'),
+          ),
+          findsOneWidget,
+        );
+      },
+    );
+
+    testWidgets(
+      'T. Stage 2 semantic sanitization: unknown To is cleared after timetable load',
+      (tester) async {
+        final timetable = createJourneyTestTimetable();
+        final fakeRepo = FakeTimetableRepository(timetable: timetable);
+
+        await pumpJourneySearchTest(
+          tester,
+          initialBoardingStopId: StopId('stop_alpha_1'),
+          initialAlightingStopId: StopId('unknown_stop_999'),
+          overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
+        );
+        await tester.pumpAndSettle();
+
+        // No error screen
+        expect(find.byType(GtErrorView), findsNothing);
+        // From remains valid Alpha Central
+        expect(
+          find.descendant(
+            of: findFromSearchBar(),
+            matching: find.text('Alpha Central'),
+          ),
+          findsOneWidget,
+        );
+        // To is cleared (unselected placeholder shown)
+        expect(find.text('Choose destination stop'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'U. Stage 2 semantic sanitization: same known From and To retains From and clears To',
+      (tester) async {
+        final timetable = createJourneyTestTimetable();
+        final fakeRepo = FakeTimetableRepository(timetable: timetable);
+
+        await pumpJourneySearchTest(
+          tester,
+          initialBoardingStopId: StopId('stop_alpha_1'),
+          initialAlightingStopId: StopId('stop_alpha_1'),
+          overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
+        );
+        await tester.pumpAndSettle();
+
+        // From retained
+        expect(
+          find.descendant(
+            of: findFromSearchBar(),
+            matching: find.text('Alpha Central'),
+          ),
+          findsOneWidget,
+        );
+        // To cleared
+        expect(find.text('Choose destination stop'), findsOneWidget);
+        // No crash, guidance displayed
+        expect(find.byType(GtErrorView), findsNothing);
+        expect(
+          find.text(
+            'Select a starting stop and destination to view scheduled journeys.',
+          ),
+          findsOneWidget,
+        );
+      },
+    );
+
+    testWidgets(
+      'V. Stage 2 semantic sanitization: valid distinct pair prefills both and activates upcoming journeys',
+      (tester) async {
+        final timetable = createJourneyTestTimetable();
+        final fakeRepo = FakeTimetableRepository(timetable: timetable);
+
+        await pumpJourneySearchTest(
+          tester,
+          initialBoardingStopId: StopId('stop_alpha_1'),
+          initialAlightingStopId: StopId('stop_central'),
+          overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
+        );
+        await tester.pumpAndSettle();
+
+        // Both selectors prefilled
+        expect(
+          find.descendant(
+            of: findFromSearchBar(),
+            matching: find.text('Alpha Central'),
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(
+            of: findToSearchBar(),
+            matching: find.text('Central Station'),
+          ),
+          findsOneWidget,
+        );
+
+        // Journey results activated
+        expect(find.byType(ScheduledJourneyCard), findsWidgets);
+        expect(find.textContaining('Route 101'), findsWidgets);
+      },
+    );
+
+    testWidgets(
+      'W. Stage 2 semantic sanitization runs exactly once: subsequent selections / swap / ticks are preserved',
+      (tester) async {
+        final timetable = createJourneyTestTimetable();
+        final fakeRepo = FakeTimetableRepository(timetable: timetable);
+
+        await pumpJourneySearchTest(
+          tester,
+          initialBoardingStopId: StopId('stop_alpha_1'),
+          initialAlightingStopId: StopId('stop_central'),
+          overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
+        );
+        await tester.pumpAndSettle();
+
+        // Tap swap button
+        await tester.tap(find.byTooltip('Swap stops'));
+        await tester.pumpAndSettle();
+
+        // Now From is Central Station and To is Alpha Central
+        expect(
+          find.descendant(
+            of: findFromSearchBar(),
+            matching: find.text('Central Station'),
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(
+            of: findToSearchBar(),
+            matching: find.text('Alpha Central'),
+          ),
+          findsOneWidget,
+        );
+
+        // Re-pump / rebuild without resetting
+        await tester.pump();
+        await tester.pumpAndSettle();
+
+        // Swapped state remains
+        expect(
+          find.descendant(
+            of: findFromSearchBar(),
+            matching: find.text('Central Station'),
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(
+            of: findToSearchBar(),
+            matching: find.text('Alpha Central'),
+          ),
+          findsOneWidget,
+        );
+      },
+    );
+
+    testWidgets(
+      'X. Changing From to current To clears To after initial prefill',
+      (tester) async {
+        final timetable = createJourneyTestTimetable();
+        final fakeRepo = FakeTimetableRepository(timetable: timetable);
+
+        await pumpJourneySearchTest(
+          tester,
+          initialBoardingStopId: StopId('stop_alpha_1'),
+          initialAlightingStopId: StopId('stop_central'),
+          overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
+        );
+        await tester.pumpAndSettle();
+
+        // Open From search and select Central Station (which matches current To)
+        await tester.tap(findFromSearchBar());
+        await tester.pumpAndSettle();
+
+        final centralOption = find.widgetWithText(ListTile, 'Central Station');
+        await tester.tap(centralOption);
+        await tester.pumpAndSettle();
+
+        // From is now Central Station, and To was cleared
+        expect(
+          find.descendant(
+            of: findFromSearchBar(),
+            matching: find.text('Central Station'),
+          ),
+          findsOneWidget,
+        );
+        expect(find.text('Choose destination stop'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'Y. Error during initial timetable load is non-fatal; retry runs sanitization once',
+      (tester) async {
+        final fakeRepo = FakeTimetableRepository(
+          error: DataFormatFailure(
+            cause: 'Disk error',
+            stackTrace: StackTrace.current,
+          ),
+        );
+
+        await pumpJourneySearchTest(
+          tester,
+          initialBoardingStopId: StopId('stop_alpha_1'),
+          initialAlightingStopId: StopId('stop_central'),
+          overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
+        );
+        await tester.pumpAndSettle();
+
+        // Error view displayed
+        expect(find.byType(GtErrorView), findsOneWidget);
+
+        // Recover timetable
+        fakeRepo.error = null;
+        fakeRepo.timetable = createJourneyTestTimetable();
+
+        await tester.tap(find.text('Try again'));
+        await tester.pumpAndSettle();
+
+        // Sanitization ran on first successful load: both prefilled
+        expect(find.byType(GtErrorView), findsNothing);
+        expect(
+          find.descendant(
+            of: findFromSearchBar(),
+            matching: find.text('Alpha Central'),
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(
+            of: findToSearchBar(),
+            matching: find.text('Central Station'),
+          ),
+          findsOneWidget,
+        );
+      },
+    );
   });
 }

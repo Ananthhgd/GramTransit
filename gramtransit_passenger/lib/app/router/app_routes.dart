@@ -9,6 +9,7 @@ abstract final class AppRoutes {
   static const String more = 'more';
   static const String settings = 'settings';
   static const String tripDetails = 'tripDetails';
+  static const String journeys = 'journeys';
 
   // ── Full paths (reference / location checks) ───────────────────────────────
 
@@ -16,4 +17,5 @@ abstract final class AppRoutes {
   static const String morePath = '/more';
   static const String settingsPath = '/more/settings';
   static const String tripDetailsPath = '/trips/:tripId';
+  static const String journeysPath = '/journeys';
 }

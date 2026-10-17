@@ -110,6 +110,7 @@ Timetable createTestTimetable({
 Future<void> pumpHomeTest(
   WidgetTester tester, {
   Widget? child,
+  ValueChanged<StopId?>? onSearchTap,
   List<dynamic> overrides = const [],
   ThemeMode themeMode = ThemeMode.light,
   double textScaleFactor = 1.0,
@@ -140,10 +141,14 @@ Future<void> pumpHomeTest(
         home: MediaQuery(
           data: MediaQueryData(textScaler: TextScaler.linear(textScaleFactor)),
           child: child != null
-              ? Scaffold(
-                  body: SafeArea(child: SingleChildScrollView(child: child)),
-                )
-              : const HomeScreen(),
+              ? (child is Scaffold
+                    ? child
+                    : Scaffold(
+                        body: SafeArea(
+                          child: SingleChildScrollView(child: child),
+                        ),
+                      ))
+              : HomeScreen(onSearchTap: onSearchTap),
         ),
       ),
     ),
