@@ -48,23 +48,17 @@ String formatServiceDays(BuildContext context, ServiceDays days) {
     return l10n.tripDetailsRunsEveryDay;
   }
 
-  final activeDays = <String>[];
-  if (days.monday) activeDays.add(formatShortWeekday(context, DateTime.monday));
-  if (days.tuesday) {
-    activeDays.add(formatShortWeekday(context, DateTime.tuesday));
-  }
-  if (days.wednesday) {
-    activeDays.add(formatShortWeekday(context, DateTime.wednesday));
-  }
-  if (days.thursday) {
-    activeDays.add(formatShortWeekday(context, DateTime.thursday));
-  }
-  if (days.friday) activeDays.add(formatShortWeekday(context, DateTime.friday));
-  if (days.saturday) {
-    activeDays.add(formatShortWeekday(context, DateTime.saturday));
-  }
-  if (days.sunday) activeDays.add(formatShortWeekday(context, DateTime.sunday));
+  final weekdayInts = <int>[
+    if (days.monday) DateTime.monday,
+    if (days.tuesday) DateTime.tuesday,
+    if (days.wednesday) DateTime.wednesday,
+    if (days.thursday) DateTime.thursday,
+    if (days.friday) DateTime.friday,
+    if (days.saturday) DateTime.saturday,
+    if (days.sunday) DateTime.sunday,
+  ];
 
+  final activeDays = formatShortWeekdays(context, weekdayInts);
   return l10n.tripDetailsRunsOn(activeDays.join(', '));
 }
 

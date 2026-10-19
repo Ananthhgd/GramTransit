@@ -39,3 +39,26 @@ String formatShortWeekday(BuildContext context, int weekday) {
   final referenceDate = DateTime(2026, 1, 4 + weekday);
   return DateFormat.E(locale).format(referenceDate);
 }
+
+/// Formats a collection of weekday integers (1 for Monday through 7 for Sunday)
+/// into an ordered list of localized short weekday strings (e.g. `['Mon', 'Wed']`).
+///
+/// Weekdays are deduplicated and ordered semantically from Monday ([DateTime.monday])
+/// through Sunday ([DateTime.sunday]).
+///
+/// Throws an [ArgumentError] if any weekday is not between 1 and 7.
+List<String> formatShortWeekdays(BuildContext context, Iterable<int> weekdays) {
+  final uniqueDays = weekdays.toSet();
+  for (final day in uniqueDays) {
+    if (day < DateTime.monday || day > DateTime.sunday) {
+      throw ArgumentError.value(
+        day,
+        'weekdays',
+        'Weekday must be between 1 (Monday) and 7 (Sunday)',
+      );
+    }
+  }
+
+  final sortedDays = uniqueDays.toList()..sort();
+  return sortedDays.map((day) => formatShortWeekday(context, day)).toList();
+}
