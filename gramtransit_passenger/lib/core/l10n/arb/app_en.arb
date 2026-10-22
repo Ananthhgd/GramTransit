@@ -468,5 +468,65 @@
         "type": "String"
       }
     }
+  },
+
+  "stopsTitle": "Stops",
+  "@stopsTitle": {
+    "description": "Title displayed at the top of the Stops list screen."
+  },
+
+  "stopsSearchHint": "Search stops",
+  "@stopsSearchHint": {
+    "description": "Placeholder hint text in the stops search bar."
+  },
+
+  "stopsClearSearch": "Clear search",
+  "@stopsClearSearch": {
+    "description": "Accessibility tooltip for the clear button in the stops search bar."
+  },
+
+  "stopsNoStopsFound": "No stops found",
+  "@stopsNoStopsFound": {
+    "description": "Message displayed when no stops match the active search query."
+  },
+
+  "stopDetailsTitle": "Stop details",
+  "@stopDetailsTitle": {
+    "description": "Title displayed at the top of the Stop Details screen."
+  },
+
+  "stopNotFoundTitle": "Stop not found",
+  "@stopNotFoundTitle": {
+    "description": "Title for the empty state when a requested stop cannot be found."
+  },
+
+  "stopNotFoundMessage": "This stop isn't in the current timetable.",
+  "@stopNotFoundMessage": {
+    "description": "Message explaining that the requested stop was not found in the timetable."
+  },
+
+  "stopNotFoundAction": "Go to Home",
+  "@stopNotFoundAction": {
+    "description": "Button label to return to Home from the stop-not-found state."
+  },
+
+  "stopPlanJourneyFromHere": "Plan journey from here",
+  "@stopPlanJourneyFromHere": {
+    "description": "Action button label to plan a journey starting from this stop."
+  },
+
+  "stopRoutesServingTitle": "Routes serving this stop",
+  "@stopRoutesServingTitle": {
+    "description": "Heading for the section listing transit routes that serve this stop."
+  },
+
+  "stopNoRoutesServing": "No routes currently serve this stop",
+  "@stopNoRoutesServing": {
+    "description": "Message displayed when no routes serve a known stop."
+  },
+
+  "stopUpcomingDeparturesTitle": "Upcoming departures",
+  "@stopUpcomingDeparturesTitle": {
+    "description": "Heading for the upcoming departures section on the Stop Details screen."
   }
 }

@@ -537,6 +537,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Route {shortName} · {longName}'**
   String journeyTripRouteFallback(String shortName, String longName);
+
+  /// Title displayed at the top of the Stops list screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Stops'**
+  String get stopsTitle;
+
+  /// Placeholder hint text in the stops search bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Search stops'**
+  String get stopsSearchHint;
+
+  /// Accessibility tooltip for the clear button in the stops search bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get stopsClearSearch;
+
+  /// Message displayed when no stops match the active search query.
+  ///
+  /// In en, this message translates to:
+  /// **'No stops found'**
+  String get stopsNoStopsFound;
+
+  /// Title displayed at the top of the Stop Details screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop details'**
+  String get stopDetailsTitle;
+
+  /// Title for the empty state when a requested stop cannot be found.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop not found'**
+  String get stopNotFoundTitle;
+
+  /// Message explaining that the requested stop was not found in the timetable.
+  ///
+  /// In en, this message translates to:
+  /// **'This stop isn\'t in the current timetable.'**
+  String get stopNotFoundMessage;
+
+  /// Button label to return to Home from the stop-not-found state.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Home'**
+  String get stopNotFoundAction;
+
+  /// Action button label to plan a journey starting from this stop.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan journey from here'**
+  String get stopPlanJourneyFromHere;
+
+  /// Heading for the section listing transit routes that serve this stop.
+  ///
+  /// In en, this message translates to:
+  /// **'Routes serving this stop'**
+  String get stopRoutesServingTitle;
+
+  /// Message displayed when no routes serve a known stop.
+  ///
+  /// In en, this message translates to:
+  /// **'No routes currently serve this stop'**
+  String get stopNoRoutesServing;
+
+  /// Heading for the upcoming departures section on the Stop Details screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming departures'**
+  String get stopUpcomingDeparturesTitle;
 }
 
 class _AppLocalizationsDelegate

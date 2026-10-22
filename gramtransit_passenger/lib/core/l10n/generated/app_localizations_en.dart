@@ -275,4 +275,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String journeyTripRouteFallback(String shortName, String longName) {
     return 'Route $shortName · $longName';
   }
+
+  @override
+  String get stopsTitle => 'Stops';
+
+  @override
+  String get stopsSearchHint => 'Search stops';
+
+  @override
+  String get stopsClearSearch => 'Clear search';
+
+  @override
+  String get stopsNoStopsFound => 'No stops found';
+
+  @override
+  String get stopDetailsTitle => 'Stop details';
+
+  @override
+  String get stopNotFoundTitle => 'Stop not found';
+
+  @override
+  String get stopNotFoundMessage =>
+      'This stop isn\'t in the current timetable.';
+
+  @override
+  String get stopNotFoundAction => 'Go to Home';
+
+  @override
+  String get stopPlanJourneyFromHere => 'Plan journey from here';
+
+  @override
+  String get stopRoutesServingTitle => 'Routes serving this stop';
+
+  @override
+  String get stopNoRoutesServing => 'No routes currently serve this stop';
+
+  @override
+  String get stopUpcomingDeparturesTitle => 'Upcoming departures';
 }
