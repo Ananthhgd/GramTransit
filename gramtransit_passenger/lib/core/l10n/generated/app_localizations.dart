@@ -256,22 +256,22 @@ abstract class AppLocalizations {
   /// **'Dark'**
   String get themeModeDark;
 
-  /// Title displayed on the route-not-found error screen.
+  /// Title for the empty state when a requested route cannot be found.
   ///
   /// In en, this message translates to:
-  /// **'Page not found'**
+  /// **'Route not found'**
   String get routeNotFoundTitle;
 
-  /// Explanatory message on the route-not-found error screen.
+  /// Message explaining that the requested route was not found in the timetable.
   ///
   /// In en, this message translates to:
-  /// **'The page you\'re looking for doesn\'t exist.'**
+  /// **'This route isn\'t in the current timetable.'**
   String get routeNotFoundMessage;
 
-  /// Button label on the route-not-found screen that navigates the user back to the Home screen.
+  /// Button label to navigate back from the route-not-found state.
   ///
   /// In en, this message translates to:
-  /// **'Go to Home'**
+  /// **'Go back'**
   String get routeNotFoundAction;
 
   /// Accessible label for a loading indicator, read by screen readers while content is being fetched.
@@ -609,6 +609,70 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Upcoming departures'**
   String get stopUpcomingDeparturesTitle;
+
+  /// Title displayed at the top of the Routes list screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Routes'**
+  String get routesTitle;
+
+  /// Empty state title displayed when the loaded timetable contains no routes.
+  ///
+  /// In en, this message translates to:
+  /// **'No routes available'**
+  String get routesNoRoutesAvailable;
+
+  /// Title displayed at the top of the Route Details screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Route details'**
+  String get routeDetailsTitle;
+
+  /// Message displayed when a known route has zero scheduled trips or variants.
+  ///
+  /// In en, this message translates to:
+  /// **'No scheduled trips available for this route.'**
+  String get routeNoScheduledTrips;
+
+  /// Heading for the ordered stop sequence section in Route Details.
+  ///
+  /// In en, this message translates to:
+  /// **'Stops'**
+  String get routeStopsHeading;
+
+  /// Heading for the scheduled trips section in Route Details.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled trips'**
+  String get routeScheduledTripsHeading;
+
+  /// Header title for a route variant section.
+  ///
+  /// In en, this message translates to:
+  /// **'Variant {index}: {origin} to {destination}'**
+  String routeVariantTitle(int index, String origin, String destination);
+
+  /// Accessibility label for an item in the ordered stop sequence.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop {position} of {total}: {stopName}'**
+  String routeStopSequenceItemSemantics(
+    int position,
+    int total,
+    String stopName,
+  );
+
+  /// Accessibility label for the first-stop departure time.
+  ///
+  /// In en, this message translates to:
+  /// **'Departs {time}'**
+  String routeDepartureEndpointSemantics(String time);
+
+  /// Accessibility label for the final-stop arrival time.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrives {time}'**
+  String routeArrivalEndpointSemantics(String time);
 }
 
 class _AppLocalizationsDelegate

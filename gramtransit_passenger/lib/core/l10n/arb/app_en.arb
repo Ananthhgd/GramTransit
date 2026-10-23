@@ -528,5 +528,102 @@
   "stopUpcomingDeparturesTitle": "Upcoming departures",
   "@stopUpcomingDeparturesTitle": {
     "description": "Heading for the upcoming departures section on the Stop Details screen."
+  },
+
+  "routesTitle": "Routes",
+  "@routesTitle": {
+    "description": "Title displayed at the top of the Routes list screen."
+  },
+
+  "routesNoRoutesAvailable": "No routes available",
+  "@routesNoRoutesAvailable": {
+    "description": "Empty state title displayed when the loaded timetable contains no routes."
+  },
+
+  "routeDetailsTitle": "Route details",
+  "@routeDetailsTitle": {
+    "description": "Title displayed at the top of the Route Details screen."
+  },
+
+  "routeNotFoundTitle": "Route not found",
+  "@routeNotFoundTitle": {
+    "description": "Title for the empty state when a requested route cannot be found."
+  },
+
+  "routeNotFoundMessage": "This route isn't in the current timetable.",
+  "@routeNotFoundMessage": {
+    "description": "Message explaining that the requested route was not found in the timetable."
+  },
+
+  "routeNotFoundAction": "Go back",
+  "@routeNotFoundAction": {
+    "description": "Button label to navigate back from the route-not-found state."
+  },
+
+  "routeNoScheduledTrips": "No scheduled trips available for this route.",
+  "@routeNoScheduledTrips": {
+    "description": "Message displayed when a known route has zero scheduled trips or variants."
+  },
+
+  "routeStopsHeading": "Stops",
+  "@routeStopsHeading": {
+    "description": "Heading for the ordered stop sequence section in Route Details."
+  },
+
+  "routeScheduledTripsHeading": "Scheduled trips",
+  "@routeScheduledTripsHeading": {
+    "description": "Heading for the scheduled trips section in Route Details."
+  },
+
+  "routeVariantTitle": "Variant {index}: {origin} to {destination}",
+  "@routeVariantTitle": {
+    "description": "Header title for a route variant section.",
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "origin": {
+        "type": "String"
+      },
+      "destination": {
+        "type": "String"
+      }
+    }
+  },
+
+  "routeStopSequenceItemSemantics": "Stop {position} of {total}: {stopName}",
+  "@routeStopSequenceItemSemantics": {
+    "description": "Accessibility label for an item in the ordered stop sequence.",
+    "placeholders": {
+      "position": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "stopName": {
+        "type": "String"
+      }
+    }
+  },
+
+  "routeDepartureEndpointSemantics": "Departs {time}",
+  "@routeDepartureEndpointSemantics": {
+    "description": "Accessibility label for the first-stop departure time.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+
+  "routeArrivalEndpointSemantics": "Arrives {time}",
+  "@routeArrivalEndpointSemantics": {
+    "description": "Accessibility label for the final-stop arrival time.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
   }
 }

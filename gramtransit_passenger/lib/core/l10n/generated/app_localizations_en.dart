@@ -102,14 +102,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themeModeDark => 'Dark';
 
   @override
-  String get routeNotFoundTitle => 'Page not found';
+  String get routeNotFoundTitle => 'Route not found';
 
   @override
   String get routeNotFoundMessage =>
-      'The page you\'re looking for doesn\'t exist.';
+      'This route isn\'t in the current timetable.';
 
   @override
-  String get routeNotFoundAction => 'Go to Home';
+  String get routeNotFoundAction => 'Go back';
 
   @override
   String get loadingLabel => 'Loading';
@@ -312,4 +312,47 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stopUpcomingDeparturesTitle => 'Upcoming departures';
+
+  @override
+  String get routesTitle => 'Routes';
+
+  @override
+  String get routesNoRoutesAvailable => 'No routes available';
+
+  @override
+  String get routeDetailsTitle => 'Route details';
+
+  @override
+  String get routeNoScheduledTrips =>
+      'No scheduled trips available for this route.';
+
+  @override
+  String get routeStopsHeading => 'Stops';
+
+  @override
+  String get routeScheduledTripsHeading => 'Scheduled trips';
+
+  @override
+  String routeVariantTitle(int index, String origin, String destination) {
+    return 'Variant $index: $origin to $destination';
+  }
+
+  @override
+  String routeStopSequenceItemSemantics(
+    int position,
+    int total,
+    String stopName,
+  ) {
+    return 'Stop $position of $total: $stopName';
+  }
+
+  @override
+  String routeDepartureEndpointSemantics(String time) {
+    return 'Departs $time';
+  }
+
+  @override
+  String routeArrivalEndpointSemantics(String time) {
+    return 'Arrives $time';
+  }
 }
