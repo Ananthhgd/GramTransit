@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:gramtransit_passenger/app/router/app_routes.dart';
 import 'package:gramtransit_passenger/core/design_system/tokens/gt_spacing.dart';
+import 'package:gramtransit_passenger/features/home/presentation/widgets/home_explore_section.dart';
 import 'package:gramtransit_passenger/features/home/presentation/widgets/home_header.dart';
 import 'package:gramtransit_passenger/features/home/presentation/widgets/search_entry_placeholder.dart';
 import 'package:gramtransit_passenger/features/home/presentation/widgets/upcoming_departures_section.dart';
@@ -12,12 +13,27 @@ import 'package:gramtransit_passenger/features/transit/domain/ids.dart';
 ///
 /// Owns the session-only [selectedStopId] state for the Home screen (Model H-A).
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, @visibleForTesting this.onSearchTap});
+  const HomeScreen({
+    super.key,
+    @visibleForTesting this.onSearchTap,
+    @visibleForTesting this.onAllStopsTap,
+    @visibleForTesting this.onAllRoutesTap,
+  });
 
   /// Optional test injection callback invoked when the search entry is tapped.
   ///
   /// If null, standard [GoRouter] navigation via [context.pushNamed] is used.
   final ValueChanged<StopId?>? onSearchTap;
+
+  /// Optional test injection callback invoked when "All stops" is tapped.
+  ///
+  /// If null, standard [GoRouter] navigation via [context.pushNamed] is used.
+  final VoidCallback? onAllStopsTap;
+
+  /// Optional test injection callback invoked when "All routes" is tapped.
+  ///
+  /// If null, standard [GoRouter] navigation via [context.pushNamed] is used.
+  final VoidCallback? onAllRoutesTap;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -42,6 +58,22 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _onAllStopsTapped() {
+    if (widget.onAllStopsTap != null) {
+      widget.onAllStopsTap!();
+      return;
+    }
+    context.pushNamed(AppRoutes.stops);
+  }
+
+  void _onAllRoutesTapped() {
+    if (widget.onAllRoutesTap != null) {
+      widget.onAllRoutesTap!();
+      return;
+    }
+    context.pushNamed(AppRoutes.routes);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,15 +81,20 @@ class _HomeScreenState extends State<HomeScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(
             horizontal: GtSpacing.lg,
-            vertical: GtSpacing.xl,
+            vertical: GtSpacing.md,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const HomeHeader(),
-              const SizedBox(height: GtSpacing.xl),
+              const SizedBox(height: GtSpacing.md),
               SearchEntryPlaceholder(onTap: _onSearchTapped),
-              const SizedBox(height: GtSpacing.xl),
+              const SizedBox(height: GtSpacing.sm),
+              HomeExploreSection(
+                onAllStopsTap: _onAllStopsTapped,
+                onAllRoutesTap: _onAllRoutesTapped,
+              ),
+              const SizedBox(height: GtSpacing.sm),
               UpcomingDeparturesSection(
                 selectedStopId: _selectedStopId,
                 onStopSelected: (stopId) {

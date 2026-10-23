@@ -1,10 +1,16 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:gramtransit_passenger/app/router/app_routes.dart';
 import 'package:gramtransit_passenger/app/router/app_shell.dart';
 import 'package:gramtransit_passenger/app/router/route_not_found_screen.dart';
+import 'package:gramtransit_passenger/core/design_system/components/feedback/gt_empty_state.dart';
+import 'package:gramtransit_passenger/core/l10n/l10n_extensions.dart';
+import 'package:gramtransit_passenger/features/browse/presentation/route_details_screen.dart';
+import 'package:gramtransit_passenger/features/browse/presentation/routes_screen.dart';
+import 'package:gramtransit_passenger/features/browse/presentation/stop_details_screen.dart';
+import 'package:gramtransit_passenger/features/browse/presentation/stops_screen.dart';
 import 'package:gramtransit_passenger/features/home/presentation/home_screen.dart';
 import 'package:gramtransit_passenger/features/journey_search/presentation/journey_search_screen.dart';
 import 'package:gramtransit_passenger/features/more/presentation/more_screen.dart';
@@ -26,6 +32,34 @@ StopId? parseQueryStopId(String? raw) {
   if (raw == null) return null;
   try {
     return StopId(raw);
+  } on ArgumentError {
+    return null;
+  }
+}
+
+/// Parses a route path parameter into a [StopId].
+///
+/// Returns `null` if [raw] is absent, empty, or fails [StopId] syntax validation.
+/// Does not perform timetable lookups or throw exceptions.
+@visibleForTesting
+StopId? parsePathStopId(String? raw) {
+  if (raw == null) return null;
+  try {
+    return StopId(raw);
+  } on ArgumentError {
+    return null;
+  }
+}
+
+/// Parses a route path parameter into a [RouteId].
+///
+/// Returns `null` if [raw] is absent, empty, or fails [RouteId] syntax validation.
+/// Does not perform timetable lookups or throw exceptions.
+@visibleForTesting
+RouteId? parsePathRouteId(String? raw) {
+  if (raw == null) return null;
+  try {
+    return RouteId(raw);
   } on ArgumentError {
     return null;
   }
@@ -103,6 +137,126 @@ final routerProvider = Provider<GoRouter>((ref) {
           return JourneySearchScreen(
             initialBoardingStopId: parseQueryStopId(fromParam),
             initialAlightingStopId: parseQueryStopId(toParam),
+          );
+        },
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootNavigatorKey,
+        path: AppRoutes.stopsPath,
+        name: AppRoutes.stops,
+        builder: (context, state) => StopsScreen(
+          onStopTap: (stopId) {
+            context.pushNamed(
+              AppRoutes.stopDetails,
+              pathParameters: {'stopId': stopId.value},
+            );
+          },
+        ),
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootNavigatorKey,
+        path: AppRoutes.stopDetailsPath,
+        name: AppRoutes.stopDetails,
+        builder: (context, state) {
+          final stopId = parsePathStopId(state.pathParameters['stopId']);
+          if (stopId == null) {
+            return Scaffold(
+              appBar: AppBar(title: Text(context.l10n.stopDetailsTitle)),
+              body: SafeArea(
+                child: GtEmptyState(
+                  icon: Icons.place_outlined,
+                  title: context.l10n.stopNotFoundTitle,
+                  message: context.l10n.stopNotFoundMessage,
+                  actionLabel: context.l10n.stopNotFoundAction,
+                  onAction: () {
+                    if (context.canPop()) {
+                      context.pop();
+                    } else {
+                      context.goNamed(AppRoutes.home);
+                    }
+                  },
+                ),
+              ),
+            );
+          }
+          return StopDetailsScreen(
+            stopId: stopId,
+            onPlanJourney: (id) {
+              context.pushNamed(
+                AppRoutes.journeys,
+                queryParameters: {'from': id.value},
+              );
+            },
+            onTripTap: (tripId) {
+              context.pushNamed(
+                AppRoutes.tripDetails,
+                pathParameters: {'tripId': tripId.value},
+              );
+            },
+            onBack: () {
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.goNamed(AppRoutes.home);
+              }
+            },
+          );
+        },
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootNavigatorKey,
+        path: AppRoutes.routesPath,
+        name: AppRoutes.routes,
+        builder: (context, state) => RoutesScreen(
+          onRouteTap: (routeId) {
+            context.pushNamed(
+              AppRoutes.routeDetails,
+              pathParameters: {'routeId': routeId.value},
+            );
+          },
+        ),
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootNavigatorKey,
+        path: AppRoutes.routeDetailsPath,
+        name: AppRoutes.routeDetails,
+        builder: (context, state) {
+          final routeId = parsePathRouteId(state.pathParameters['routeId']);
+          if (routeId == null) {
+            return Scaffold(
+              appBar: AppBar(title: Text(context.l10n.routeDetailsTitle)),
+              body: SafeArea(
+                child: GtEmptyState(
+                  icon: Icons.alt_route_rounded,
+                  title: context.l10n.routeNotFoundTitle,
+                  message: context.l10n.routeNotFoundMessage,
+                  actionLabel: context.l10n.routeNotFoundAction,
+                  onAction: () {
+                    if (context.canPop()) {
+                      context.pop();
+                    } else {
+                      context.goNamed(AppRoutes.home);
+                    }
+                  },
+                ),
+              ),
+            );
+          }
+          return RouteDetailsScreen(
+            routeId: routeId,
+            onBack: () {
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.goNamed(AppRoutes.home);
+              }
+            },
+            onTripTap: (tripId) {
+              context.pushNamed(
+                AppRoutes.tripDetails,
+                pathParameters: {'tripId': tripId.value},
+              );
+            },
           );
         },
       ),

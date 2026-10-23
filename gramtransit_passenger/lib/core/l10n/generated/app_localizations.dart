@@ -673,6 +673,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Arrives {time}'**
   String routeArrivalEndpointSemantics(String time);
+
+  /// Section heading for the Explore entry area on the Home screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore'**
+  String get homeExploreTitle;
+
+  /// Action label for navigating to all stops list from the Home Explore area.
+  ///
+  /// In en, this message translates to:
+  /// **'All stops'**
+  String get homeExploreAllStops;
+
+  /// Action label for navigating to all routes list from the Home Explore area.
+  ///
+  /// In en, this message translates to:
+  /// **'All routes'**
+  String get homeExploreAllRoutes;
 }
 
 class _AppLocalizationsDelegate

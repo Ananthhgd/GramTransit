@@ -111,6 +111,8 @@ Future<void> pumpHomeTest(
   WidgetTester tester, {
   Widget? child,
   ValueChanged<StopId?>? onSearchTap,
+  VoidCallback? onAllStopsTap,
+  VoidCallback? onAllRoutesTap,
   List<dynamic> overrides = const [],
   ThemeMode themeMode = ThemeMode.light,
   double textScaleFactor = 1.0,
@@ -148,7 +150,11 @@ Future<void> pumpHomeTest(
                           child: SingleChildScrollView(child: child),
                         ),
                       ))
-              : HomeScreen(onSearchTap: onSearchTap),
+              : HomeScreen(
+                  onSearchTap: onSearchTap,
+                  onAllStopsTap: onAllStopsTap,
+                  onAllRoutesTap: onAllRoutesTap,
+                ),
         ),
       ),
     ),

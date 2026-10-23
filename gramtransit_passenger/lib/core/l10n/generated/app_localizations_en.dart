@@ -355,4 +355,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String routeArrivalEndpointSemantics(String time) {
     return 'Arrives $time';
   }
+
+  @override
+  String get homeExploreTitle => 'Explore';
+
+  @override
+  String get homeExploreAllStops => 'All stops';
+
+  @override
+  String get homeExploreAllRoutes => 'All routes';
 }

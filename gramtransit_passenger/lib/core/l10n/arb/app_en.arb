@@ -625,5 +625,20 @@
         "type": "String"
       }
     }
+  },
+
+  "homeExploreTitle": "Explore",
+  "@homeExploreTitle": {
+    "description": "Section heading for the Explore entry area on the Home screen."
+  },
+
+  "homeExploreAllStops": "All stops",
+  "@homeExploreAllStops": {
+    "description": "Action label for navigating to all stops list from the Home Explore area."
+  },
+
+  "homeExploreAllRoutes": "All routes",
+  "@homeExploreAllRoutes": {
+    "description": "Action label for navigating to all routes list from the Home Explore area."
   }
 }

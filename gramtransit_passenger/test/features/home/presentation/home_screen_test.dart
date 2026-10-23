@@ -7,6 +7,7 @@ import 'package:gramtransit_passenger/core/design_system/components/feedback/gt_
 import 'package:gramtransit_passenger/core/design_system/components/feedback/gt_loading_view.dart';
 import 'package:gramtransit_passenger/core/error/app_failure.dart';
 import 'package:gramtransit_passenger/features/home/presentation/home_screen.dart';
+import 'package:gramtransit_passenger/features/home/presentation/widgets/home_explore_section.dart';
 import 'package:gramtransit_passenger/features/home/presentation/widgets/home_header.dart';
 import 'package:gramtransit_passenger/features/home/presentation/widgets/home_stop_selector.dart';
 import 'package:gramtransit_passenger/features/home/presentation/widgets/sample_data_notice.dart';
@@ -38,6 +39,7 @@ void main() {
       expect(find.byType(HomeScreen), findsOneWidget);
       expect(find.byType(HomeHeader), findsOneWidget);
       expect(find.byType(SearchEntryPlaceholder), findsOneWidget);
+      expect(find.byType(HomeExploreSection), findsOneWidget);
       expect(find.byType(UpcomingDeparturesSection), findsOneWidget);
 
       // Controlled UpcomingDeparturesSection starts with selectedStopId == null
@@ -288,6 +290,76 @@ void main() {
 
         expect(searchTapped, isTrue);
         expect(searchedStopId, StopId('stop_1'));
+      },
+    );
+
+    testWidgets(
+      '14. Home Explore Section: appears between SearchEntryPlaceholder and UpcomingDeparturesSection and triggers navigation callbacks without mutating selectedStopId',
+      (tester) async {
+        final timetable = createTestTimetable();
+        final fakeRepo = FakeTimetableRepository(timetable: timetable);
+        var allStopsTapped = false;
+        var allRoutesTapped = false;
+
+        await pumpHomeTest(
+          tester,
+          onAllStopsTap: () => allStopsTapped = true,
+          onAllRoutesTap: () => allRoutesTapped = true,
+          overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
+        );
+        await tester.pumpAndSettle();
+
+        // 1. Placement verification: SearchEntryPlaceholder -> HomeExploreSection -> UpcomingDeparturesSection
+        final searchY = tester
+            .getTopLeft(find.byType(SearchEntryPlaceholder))
+            .dy;
+        final exploreY = tester.getTopLeft(find.byType(HomeExploreSection)).dy;
+        final departuresY = tester
+            .getTopLeft(find.byType(UpcomingDeparturesSection))
+            .dy;
+
+        expect(searchY, lessThan(exploreY));
+        expect(exploreY, lessThan(departuresY));
+
+        // 2. Explore content rendered
+        expect(find.text('Explore'), findsOneWidget);
+        expect(find.text('All stops'), findsOneWidget);
+        expect(find.text('All routes'), findsOneWidget);
+
+        // 3. Tap All stops invokes callback
+        await tester.tap(find.text('All stops'));
+        await tester.pumpAndSettle();
+        expect(allStopsTapped, isTrue);
+
+        // 4. Tap All routes invokes callback
+        await tester.tap(find.text('All routes'));
+        await tester.pumpAndSettle();
+        expect(allRoutesTapped, isTrue);
+
+        // 5. selectedStopId remains null
+        final departuresSection = tester.widget<UpcomingDeparturesSection>(
+          find.byType(UpcomingDeparturesSection),
+        );
+        expect(departuresSection.selectedStopId, isNull);
+
+        // 6. Select a stop -> selectedStopId updates -> tapping Explore does not mutate selectedStopId
+        await tester.tap(find.byType(DropdownButton<StopId>));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('City Center').last);
+        await tester.pumpAndSettle();
+
+        final updatedSection = tester.widget<UpcomingDeparturesSection>(
+          find.byType(UpcomingDeparturesSection),
+        );
+        expect(updatedSection.selectedStopId, equals(StopId('stop_1')));
+
+        await tester.tap(find.text('All stops'));
+        await tester.pumpAndSettle();
+
+        final afterTapSection = tester.widget<UpcomingDeparturesSection>(
+          find.byType(UpcomingDeparturesSection),
+        );
+        expect(afterTapSection.selectedStopId, equals(StopId('stop_1')));
       },
     );
   });
