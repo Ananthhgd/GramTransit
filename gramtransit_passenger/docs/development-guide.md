@@ -41,10 +41,10 @@ flutter test test/core/config/app_config_dart_define_test.dart --dart-define=APP
 
 ## Using the Transit Model
 
-- **Canonical Entities:** Always consume domain models (`TransitStop`, `TransitRoute`, `ScheduledTrip`, `Timetable`, `ScheduledJourney`, `UpcomingJourneys`) from `lib/features/transit/domain/` and shared providers (`timetableProvider`, `upcomingTripsProvider`, `stopSearchProvider`, `upcomingJourneysProvider`) from `lib/features/transit/providers/`.
-- **No Competing Models:** Never create feature-local classes representing stops, routes, trips, or scheduled journeys.
-- **Domain Logic Placement:** Calculation of boardable departures, direct journey discovery, and stop search belong in pure domain functions (`findUpcomingTrips`, `findUpcomingJourneys` in `upcoming_trips_logic.dart`, and `searchStops` in `stop_search.dart`), never inside UI widget trees or controllers. Never perform timetable parsing, candidate filtering, or trip sequencing in UI widgets.
-- **Provider Queries:** When reading `stopSearchProvider` or `upcomingJourneysProvider`, always pass immutable parameter keys (`StopSearchQuery` and `JourneyQuery`).
+- **Canonical Entities:** Always consume domain models (`TransitStop`, `TransitRoute`, `ScheduledTrip`, `Timetable`, `ScheduledJourney`, `UpcomingJourneys`, `RouteVariant`) from `lib/features/transit/domain/` and shared providers (`timetableProvider`, `upcomingTripsProvider`, `stopSearchProvider`, `upcomingJourneysProvider`, `stopDetailsProvider`, `routeDetailsProvider`).
+- **No Competing Models:** Never create feature-local classes representing stops, routes, trips, scheduled journeys, or route variants.
+- **Domain Logic Placement:** Calculation of boardable departures, direct journey discovery, stop search, and route catalog projections belong in pure domain functions (`findUpcomingTrips`, `findUpcomingJourneys` in `upcoming_trips_logic.dart`, `searchStops` in `stop_search.dart`, and `routeVariants`, `routesServingStop` in `route_catalog.dart`), never inside UI widget trees or controllers. Never perform timetable parsing, candidate filtering, or trip sequencing in UI widgets.
+- **Provider Queries:** When reading `stopSearchProvider` or `upcomingJourneysProvider`, always pass immutable parameter keys (`StopSearchQuery` and `JourneyQuery`). When reading `stopDetailsProvider` or `routeDetailsProvider`, pass typed domain identifiers (`StopId`, `RouteId`).
 
 ## Working with Journey Search
 
@@ -56,28 +56,48 @@ flutter test test/core/config/app_config_dart_define_test.dart --dart-define=APP
   - *Stage 2 (Screen level):* `JourneySearchScreen` performs a one-time semantic sanitization against the loaded timetable (`_didSanitizeInitialQuery`). Unknown stops are cleared to `null`; identical From and To values retain From and clear To. This sanitization is silent and does not mutate the route URL.
 - **Journey Duration Formatting:** Zero-duration journeys (`Duration.zero`) must be formatted using `formatJourneyDuration` as `"Less than 1 min"`.
 
+## Working with Stops and Routes Browsing
+
+- **Feature Location:** Stops and routes browsing code lives in `lib/features/browse/` (`application/` and `presentation/` only). Catalog derivations (`routeVariants`, `routesServingStop`) reside in `lib/features/transit/domain/route_catalog.dart`.
+- **Route Patterns & Invariants:** `TransitRoute` holds metadata only. Operating stop patterns are derived dynamically as `RouteVariant`. Every variant requires at least 2 stops, at least one trip, matching `routeId`, and identical stop sequences across trips.
+- **Application Providers:** `stopDetailsProvider(stopId)` and `routeDetailsProvider(routeId)` watch `timetableProvider`. If the ID exists, they resolve `AsyncData(details)`. If the ID does not exist, they resolve `AsyncData(null)`.
+- **Router-Agnostic Presentation:** `StopsScreen`, `StopDetailsScreen`, `RoutesScreen`, and `RouteDetailsScreen` are pure presentation components that expose callbacks (`onStopTap`, `onPlanJourney`, `onTripTap`, `onBack`, `onRouteTap`). They never invoke `GoRouter` or inspect route parameters directly.
+- **Two-Stage Path Parameter Validation:**
+  - *Stage 1 (Router level):* `parsePathStopId` and `parsePathRouteId` in `app_router.dart` syntactically parse parameters using domain constructors (`try/on ArgumentError`). Malformed parameters return `null` and render a router-level not-found `GtEmptyState`.
+  - *Stage 2 (Screen level):* Syntactically valid but unknown IDs resolve to `AsyncData(null)` in the provider, rendering the screen-level `GtEmptyState` not-found view with back navigation.
+- **Trip Row Endpoint Time Semantics:** First-stop departure and last-stop arrival times are evaluated independently via `formatServiceTime`. Hours >= 24 normalize to clock times with a `+1` next-day marker. Screen-reader semantics announce departure/arrival and next-day meaning independently. Never infer next-day status at row level.
+- **Shared Weekday Formatting:** Decoupled helpers `formatShortWeekday` and `formatShortWeekdays` in `lib/core/l10n/date_time_formatting.dart` accept integer weekday constants (`DateTime.monday` through `DateTime.sunday`). Do not import `ServiceDays` into `core/`.
+- **Browse Disclosures:** Use `BrowseSampleDataNotice` (compact in lists, standard in details; suppressed in loading/error/not-found) and `BrowseScheduledTimesNote` on schedule lists.
+
 ## Scheduled-Information Copy
 
-- **Schedule Disclosure:** Any screen displaying departure, arrival, or journey times must include the persistent disclosure: `"Scheduled times. Actual times may vary."` (`ScheduledTimesNote`, `TripScheduledTimesNote`, or `JourneyScheduledTimesNote`).
-- **No Realtime Implications:** Contributors must never write UI copy that falsely implies live vehicle tracking, punctuality, or current delays. Avoid words like *"live"*, *"arriving in 5 mins"*, *"delayed"*, or *"on time"*. Phase 1 and Phase 2 display scheduled timings only.
+- **Schedule Disclosure:** Any screen displaying departure, arrival, or journey times must include the persistent disclosure: `"Scheduled times. Actual times may vary."` (`ScheduledTimesNote`, `TripScheduledTimesNote`, `JourneyScheduledTimesNote`, or `BrowseScheduledTimesNote`).
+- **No Realtime Implications:** Contributors must never write UI copy that falsely implies live vehicle tracking, punctuality, or current delays. Avoid words like *"live"*, *"arriving in 5 mins"*, *"delayed"*, or *"on time"*. Phase 1, Phase 2, and Phase 3 display scheduled timings only.
 
 ## Proper Names and Formatting
 
-- **Transit Names:** Stop names and route names must be encapsulated in `LocalizedText`. In Phase 1 and Phase 2, UI resolves `LocalizedText.english`.
+- **Transit Names:** Stop names and route names must be encapsulated in `LocalizedText`. In Phase 1, Phase 2, and Phase 3, UI resolves `LocalizedText.english`.
 - **UI Strings:** All static UI text must come from `AppLocalizations` via ARB files (`lib/core/l10n/arb/app_en.arb`).
-- **Date and Time Formatting:** Use the shared helpers in `lib/core/l10n/date_time_formatting.dart` (`formatClockTime`, `formatShortDate`, `formatShortWeekday`) to respect system 12/24-hour preferences and locale formats. For journey cards, use `journey_display_format.dart`.
+- **Date and Time Formatting:** Use the shared helpers in `lib/core/l10n/date_time_formatting.dart` (`formatClockTime`, `formatShortDate`, `formatShortWeekday`, `formatShortWeekdays`) to respect system 12/24-hour preferences and locale formats. For journey cards, use `journey_display_format.dart`; for browse cards, use `browse_display_format.dart`.
 
 ## Feature-Local Test Support
 
-- When writing feature-level tests, place test fixtures and harness helpers in `test/features/<feature>/<feature>_test_support.dart` (for example, `home_test_support.dart` or `trip_details_test_support.dart`).
+- When writing feature-level tests, place test fixtures and harness helpers in `test/features/<feature>/<feature>_test_support.dart` (for example, `home_test_support.dart`, `trip_details_test_support.dart`, or `browse_test_support.dart`).
 - Keep shared fakes in `test/helpers/fakes/` and widget helpers in `test/helpers/widget_pump_helper.dart`. Do not invent alternative test-support structures.
-- **Focused Journey Tests:** Run targeted test suites during feature development:
+- **Targeted Test Suites:** Run targeted test suites during feature development:
   ```bash
+  # Journey search
   flutter test test/features/journey_search/
   flutter test test/app/journey_search_navigation_test.dart
   flutter test test/features/transit/domain/upcoming_journeys_logic_test.dart
   flutter test test/features/transit/domain/stop_search_test.dart
   flutter test test/features/transit/providers/journey_search_providers_test.dart
+
+  # Stops and routes browsing
+  flutter test test/features/browse/
+  flutter test test/app/browse_navigation_test.dart
+  flutter test test/features/transit/domain/route_catalog_test.dart
+  flutter test test/features/browse/application/browse_providers_test.dart
   ```
 
 ## General Rules

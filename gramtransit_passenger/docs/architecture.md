@@ -1,6 +1,6 @@
 # GramTransit Passenger Architecture
 
-Version 1.2 — updated after Phase 2 (Direct Journey Discovery & Journey Search). Version 1.1 described Phase 1 (Transit Catalog & Offline Timetable); Version 1.0 described the Foundation baseline.
+Version 1.3 — updated after Phase 3 (Stops, Routes & Timetable Browsing). Version 1.2 described Phase 2 (Direct Journey Discovery & Journey Search); Version 1.1 described Phase 1 (Transit Catalog & Offline Timetable); Version 1.0 described the Foundation baseline.
 
 This document describes the implemented software architecture for the GramTransit Passenger application. It details structural layering, state management, data flow, transit scheduling logic, and engineering guardrails.
 
@@ -12,8 +12,8 @@ For historical rationale and decisions, see the [Passenger ADR Index](adr/README
 
 The Passenger application provides rural village travelers with offline-capable bus timings, route listings, scheduled stop details, and direct point-to-point journey discovery.
 
-- **Current Status:** Phase 1 (Transit Catalog & Offline Timetable) and Phase 2 (Direct Journey Discovery & Journey Search) are fully implemented. The application functions completely offline using an in-memory repository backed by an enriched bundled timetable snapshot (`sample-v2`).
-- **Scope Boundary:** This document describes implemented, verified code. Future capabilities (such as realtime tracking, multi-leg transfers, remote synchronization, and account authentication) are documented strictly as planned items in [Section 17: Not Yet Implemented](#17-not-yet-implemented).
+- **Current Status:** Phase 1 (Transit Catalog & Offline Timetable), Phase 2 (Direct Journey Discovery & Journey Search), and Phase 3 (Stops, Routes & Timetable Browsing) are fully implemented. The application functions completely offline using an in-memory repository backed by an enriched bundled timetable snapshot (`sample-v2`).
+- **Scope Boundary:** This document describes implemented, verified code. Future capabilities (such as realtime tracking, multi-leg transfers, remote synchronization, and account authentication) are documented strictly as planned items in [Section 18: Not Yet Implemented](#18-not-yet-implemented).
 
 ---
 
@@ -37,6 +37,7 @@ lib/
 ├── app/                  # Composition root, bootstrap, and application-wide routing
 ├── core/                 # Feature-agnostic infrastructure, design system, errors, storage, time
 └── features/             # Business feature modules
+    ├── browse/           # Stops and routes browsing application providers and presentation
     ├── home/             # Home screen and scheduled upcoming departures UI
     ├── journey_search/   # Direct journey search presentation and widgets
     ├── more/             # Secondary navigation hub
@@ -51,11 +52,11 @@ lib/
 - `lib/features/<feature>/`: Feature-specific logic. Layers exist only where warranted:
   - `domain/`: Pure Dart business entities, value objects, and repository contracts (e.g., `features/transit/domain/`).
   - `data/`: Data transfer objects, mappers, and concrete data sources (e.g., `features/transit/data/`).
-  - `application/`: Presentation-facing projections, view-models, and state controllers (e.g., `features/trip_details/application/`).
-  - `presentation/`: Widgets, screens, and display formatters (e.g., `features/journey_search/presentation/`).
+  - `application/`: Presentation-facing projections, view-models, and state controllers (e.g., `features/browse/application/`, `features/trip_details/application/`).
+  - `presentation/`: Widgets, screens, and display formatters (e.g., `features/browse/presentation/`, `features/journey_search/presentation/`).
 
 ### Canonical Transit Ownership
-`lib/features/transit/` is the single canonical owner of transit models, timetable loading, and schedule logic. Consumer features (such as `home`, `journey_search`, and `trip_details`) consume models and providers from `transit`; they must never construct competing transit representations.
+`lib/features/transit/` is the single canonical owner of transit models, timetable loading, and schedule logic. Consumer features (such as `browse`, `home`, `journey_search`, and `trip_details`) consume models and providers from `transit`; they must never construct competing transit representations.
 
 ---
 
@@ -93,12 +94,14 @@ State management and dependency injection are implemented with **Riverpod 3** us
 | `stopSearchProvider` | `Provider.autoDispose.family<AsyncValue<List<TransitStop>>, StopSearchQuery>` | `features/transit/` | Asynchronously searches stops against the loaded timetable with deterministic ranking. |
 | `upcomingJourneysProvider` | `Provider.autoDispose.family<AsyncValue<UpcomingJourneys>, JourneyQuery>` | `features/transit/` | Synchronously joins timetable and minute ticker to evaluate direct upcoming scheduled journeys. |
 | `tripDetailsProvider` | `Provider.autoDispose.family<AsyncValue<TripDetails?>, TripId>` | `features/trip_details/` | Projects timetable data into an immutable `TripDetails` application view-model. |
+| `stopDetailsProvider` | `Provider.autoDispose.family<AsyncValue<StopDetails?>, StopId>` | `features/browse/` | Asynchronously resolves stop details and serving routes from the loaded timetable. |
+| `routeDetailsProvider` | `Provider.autoDispose.family<AsyncValue<RouteDetails?>, RouteId>` | `features/browse/` | Asynchronously resolves route details and derived route variants from the loaded timetable. |
 | `routerProvider` | `Provider<GoRouter>` | `app/router/` | Central declarative routing configuration. |
 
 ### Operational Rules
 - `FutureProvider` and `StreamProvider` definitions that handle local or periodic state explicitly set `retry: (_, _) => null` to prevent automatic, uncoordinated background retry loops.
 - Asynchronous data refresh is triggered explicitly via user-driven UI actions using `ref.refresh(...)`.
-- Direct journey search and stop search use pure domain functions (`findUpcomingJourneys`, `searchStops`) paired with parameter-keyed providers (`JourneyQuery`, `StopSearchQuery`). No stateful Riverpod controller is introduced for Journey Search.
+- Direct journey search, stop search, and catalog browsing use pure domain functions (`findUpcomingJourneys`, `searchStops`, `routeVariants`, `routesServingStop`) paired with parameter-keyed providers (`JourneyQuery`, `StopSearchQuery`, `StopId`, `RouteId`). No stateful Riverpod controllers are introduced for Journey Search or Browse.
 
 ---
 
@@ -115,15 +118,30 @@ Root Navigator (_rootNavigatorKey)
 │   └── Branch 1: /more (name: "more") -> MoreScreen
 │       └── /more/settings (name: "settings") -> SettingsScreen
 ├── /trips/:tripId (name: "tripDetails") -> TripDetailsScreen
-└── /journeys (name: "journeys") -> JourneySearchScreen
+├── /journeys (name: "journeys") -> JourneySearchScreen
+├── /stops (name: "stops") -> StopsScreen
+├── /stops/:stopId (name: "stopDetails") -> StopDetailsScreen
+├── /routes (name: "routes") -> RoutesScreen
+└── /routes/:routeId (name: "routeDetails") -> RouteDetailsScreen
 ```
 
 ### Navigation Characteristics
 - **Persistent Shell State:** Bottom navigation tabs (Home and More) are mounted in a `StatefulShellRoute.indexedStack`. Switching tabs preserves scroll positions and private widget state.
-- **Top-Level Detail and Search Navigation:** Both Trip Details (`/trips/:tripId`) and Journey Search (`/journeys`) are registered on the root navigator (`_rootNavigatorKey`). They overlay the bottom navigation bar to provide a focused, full-screen task interface. Navigating back returns directly to the preserved Home screen state.
-- **Two-Stage Route & Query Validation:** The `/journeys` route accepts optional `from` and `to` query parameters (`/journeys?from=<StopId>&to=<StopId>`):
-  - *Stage 1 (Router Syntactic Validation):* `parseQueryStopId` converts non-empty trimmed strings into `StopId` or `null`. The router performs no asynchronous timetable lookups, redirects, or assertions.
-  - *Stage 2 (Screen Semantic Sanitization):* `JourneySearchScreen` validates parsed IDs against the loaded timetable upon the first successful timetable load (`_didSanitizeInitialQuery`). Unknown stops are cleared to `null`, identical From and To values retain From and clear To, and valid distinct stops are retained. This validation happens silently without mutating the URL.
+- **Top-Level Detail and Catalog Navigation:** Trip Details (`/trips/:tripId`), Journey Search (`/journeys`), Stops (`/stops`), Stop Details (`/stops/:stopId`), Routes (`/routes`), and Route Details (`/routes/:routeId`) are registered on the root navigator (`_rootNavigatorKey`). They overlay the bottom navigation bar to provide a focused, full-screen task interface. Navigating back returns directly to the preserved Home screen state.
+- **Two-Stage Route & Parameter Validation:**
+  - *Query Parameters (`/journeys?from=...&to=...`):* `parseQueryStopId` converts non-empty trimmed strings into `StopId` or `null`. The router performs no asynchronous timetable lookups or asserts. `JourneySearchScreen` semantically sanitizes parsed IDs against the loaded timetable upon initial load (`_didSanitizeInitialQuery`). Unknown stops clear to `null`.
+  - *Path Parameters (`/stops/:stopId`, `/routes/:routeId`):*
+    - **Stage 1 (Router Syntactic Validation):** `parsePathStopId` and `parsePathRouteId` validate syntax via domain constructors (`try/on ArgumentError`). If a path parameter is missing, empty, or whitespace-only, the function returns `null`. The router builder immediately renders a router-level fallback `Scaffold` containing `GtEmptyState` with a back/home action, avoiding navigation to the screen. No regex-based validation is used.
+    - **Stage 2 (Screen Semantic Validation):** If syntax is valid, navigation proceeds to `StopDetailsScreen` or `RouteDetailsScreen`. If the canonical ID does not exist in the loaded timetable, the family provider (`stopDetailsProvider` or `routeDetailsProvider`) resolves to `AsyncData(null)`. The screen renders the established Browse not-found `GtEmptyState` with back navigation.
+  - *Unmatched URLs:* Fall back to `RouteNotFoundScreen`.
+- **Navigation Wiring:**
+  - Home -> Stops ("All stops" in `HomeExploreSection`)
+  - Home -> Routes ("All routes" in `HomeExploreSection`)
+  - Stops -> Stop Details (tapping stop row)
+  - Stop Details -> Journey Search with preselected origin (`/journeys?from=<StopId>`)
+  - Stop Details -> Trip Details (tapping upcoming departure card)
+  - Routes -> Route Details (tapping route card)
+  - Route Details -> Trip Details (tapping scheduled trip row)
 - **Home to Journey Search Navigation:** Tapping the search entry placeholder on Home navigates to `/journeys?from=<StopId>` if a boarding stop is currently selected, or to `/journeys` if unselected. Only primitive `StopId` values cross the route boundary. Back navigation returns to the preserved Home screen state.
 - **No Artificial Splash Route:** The application loads immediately into the Home tab. Async initialization and data fetching display contextual loading indicators rather than blocking the user with an artificial splash screen.
 
@@ -131,7 +149,7 @@ Root Navigator (_rootNavigatorKey)
 
 ## 7. Transit Model and Timetable
 
-The transit catalog and timetable domain are specified in [ADR 0005](adr/0005-offline-timetable-and-transit-model.md) and [ADR 0006](adr/0006-direct-journey-discovery-and-journey-search.md), and implemented under `lib/features/transit/`.
+The transit catalog and timetable domain are specified in [ADR 0005](adr/0005-offline-timetable-and-transit-model.md), [ADR 0006](adr/0006-direct-journey-discovery-and-journey-search.md), and [ADR 0007](adr/0007-stops-routes-and-timetable-browsing.md), and implemented under `lib/features/transit/`.
 
 ### Canonical Domain Model
 
@@ -142,19 +160,42 @@ The transit catalog and timetable domain are specified in [ADR 0005](adr/0005-of
 | `ServiceTime` | Service-day clock time | Hours `00`–`47`, minutes `00`–`59`. Supports late-night service day association. |
 | `ServiceDays` | Day-of-week operating schedule | Boolean flags for Monday through Sunday. Date matching via `operatesOn(DateTime)`. |
 | `TransitStop` | Physical or named bus stop | Unique `StopId` and `LocalizedText` name. |
-| `TransitRoute` | Transit route definition | Unique `RouteId`, short name, and long name. |
+| `TransitRoute` | Transit route definition | Unique `RouteId`, short name, and long name. Metadata only; does not contain stop sequence. |
 | `StopTime` | Scheduled stop arrival and departure | Non-null `arrivalTime` and `departureTime`; departure >= arrival. |
 | `ScheduledTrip` | Route trip run and stop sequence | Unmodifiable `List<StopTime>`; sequential ordering (`departure[i] <= arrival[i+1]`). |
 | `Timetable` | Complete transit catalog snapshot | Unmodifiable lists of stops, routes, and trips; validated relational references. |
 | `TimetableInfo` | Snapshot metadata | Validated `datasetVersion` string and `isSampleData` boolean flag. |
 | `ScheduledJourney` | Scheduled direct journey occurrence | Boarding stop, downstream alighting stop, scheduled departure, and arrival times. `boardingStopId != alightingStopId`; `scheduledArrival >= scheduledDeparture`. |
 | `UpcomingJourneys` | Direct journey query result set | Immutable grouped results containing `current` and `nextLater` lists for a queried stop pair. |
+| `RouteVariant` | Derived route stop-pattern grouping | Derived immutable grouping of trips for a `RouteId` sharing identical ordered `stopIds`. Invariants: `>= 2` stops, `>= 1` trip, all trips share matching `routeId` and exact stop sequence. Derived only; not persisted. |
 
 ### Derived Projections
 - **`TripOccurrence`:** Projections of a `ScheduledTrip` for a queried stop, pairing scheduled stop departure and destination arrival with an absolute calendar `DateTime`. Destination stop name is derived from the final stop time in the trip's sequence. Direction is not a domain entity attribute.
 - **`UpcomingTrips`:** The grouped result set for a stop containing `current` and `nextLater` departure lists.
 - **`TripDetails` & `TripStopRow`:** Application view-models projecting trip information into an ordered stop list with classified positions (`first`, `intermediate`, `last`).
 - **`ScheduledJourney` & `UpcomingJourneys`:** Canonical domain models representing point-to-point direct journey runs between two distinct stops on the same scheduled trip.
+- **`RouteVariant`:** Pure domain value object projecting trips into identical operated stop-pattern sequences for a route.
+- **`StopDetails` & `RouteDetails`:** Application view-models projecting stop services and route variants for Browse screens.
+
+### Route Patterns and Catalog Projections
+In Phase 3, `TransitRoute` remains strictly route identity and metadata. In real-world rural transit, a route operates diverse patterns (reverse directions, short-turn runs, branch variations). Operational patterns are derived dynamically from `ScheduledTrip.stopTimes`.
+
+Implemented in `lib/features/transit/domain/route_catalog.dart` as pure domain functions:
+- **`routeVariants(Timetable, RouteId)`:**
+  - Throws `ArgumentError('Route not found in timetable')` if `routeId` is not in `timetable.routes`.
+  - Returns an empty unmodifiable list if the route exists but has zero scheduled trips.
+  - Groups trips by identical ordered `StopId` sequence.
+  - Reverse patterns, short-turn patterns, and intermediate variations remain separate variants.
+  - Service days and departure times alone do not split variants.
+  - Variant order follows the first appearance of any trip in canonical `timetable.trips`.
+  - Trips inside each variant are sorted deterministically by:
+    1. First-stop departure `ServiceTime` (preserving late-night `24:xx`–`47:xx` hours after `23:xx`).
+    2. `TripId.value` lexicographically as a tie-breaker.
+- **`routesServingStop(Timetable, StopId)`:**
+  - Throws `ArgumentError('Stop not found in timetable')` if `stopId` is not in `timetable.stops`.
+  - Returns an empty unmodifiable list if the stop exists but is not visited by any scheduled trip.
+  - Origin, intermediate, and terminal stop visits all count as serving.
+  - Route IDs are deduplicated and returned in canonical `timetable.routes` order.
 
 ### Direct Journey Eligibility and Discovery
 A scheduled trip represents an eligible direct journey from `boardingStopId` to `alightingStopId` when the alighting stop appears strictly after the boarding stop in the trip's scheduled stop sequence (`alightingIndex > boardingIndex`).
@@ -168,7 +209,7 @@ Key domain rules:
   - Excludes boarding at a trip's terminating stop.
   - Evaluates yesterday and today (offsets `-1` and `0`) for immediate `current` departures.
   - Evaluates the subsequent 7 service dates (offsets `+1` to `+7`) for `nextLater` departures if and only if `current` has no eligible journeys.
-- **Direct Journeys Only:** Phase 2 supports single-vehicle direct journeys only. Transfers and connection routing are excluded.
+- **Direct Journeys Only:** Phase 2 and Phase 3 support single-vehicle direct journeys only. Transfers and connection routing are excluded.
 
 ### Stop Search and Ranking
 Offline stop search is implemented in `lib/features/transit/domain/stop_search.dart` as pure function `searchStops`:
@@ -182,11 +223,11 @@ Offline stop search is implemented in `lib/features/transit/domain/stop_search.d
 - Ties within buckets and empty queries preserve original timetable order.
 - Accepts an optional `excludedStopId` parameter to filter out the boarding stop from destination results.
 - Duplicate stop names (physical stops sharing identical names) remain distinct entities identified by unique `StopId`.
-- Phase 2 scope is English stop search; transliteration and regional script matching are deferred.
+- Current scope is English stop search; transliteration and regional script matching are deferred.
 
 ### Bundled Snapshot and Validation
 - Timetable data is packaged as a local asset at `assets/transit/timetable.json`.
-- In Phase 2, the asset is enriched to `datasetVersion: "sample-v2"`, schema version `1`, `isSampleData: true`, adding rural stop networks and multi-route overlaps to support journey search verification.
+- Phase 3 continues to use the Phase 2 snapshot with `datasetVersion: "sample-v2"`, schema version `1`, `isSampleData: true`.
 - Deserialization in `TimetableDto` and mapping in `TimetableMapper` enforce **fail-closed validation**. Missing properties, duplicate keys, unreferenced identifiers, negative run times, or unsupported schema versions throw `TimetableFormatException`, which the repository maps to `DataFormatFailure`.
 
 ---
@@ -203,19 +244,25 @@ Schedule logic requires strict determinism and isolation from ambient system clo
 
 ---
 
-## 9. Home: Scheduled Departures
+## 9. Home: Scheduled Departures and Explore
 
-The Home screen (`lib/features/home/presentation/home_screen.dart`) presents scheduled bus departures from rural stops and acts as the entry point for Journey Search.
+The Home screen (`lib/features/home/presentation/home_screen.dart`) presents scheduled bus departures from rural stops, acts as the entry point for Journey Search, and provides direct shortcuts to browse stops and routes.
 
 ### User Interaction and State Ownership (Model H-A)
 - **State Ownership:** `HomeScreen` owns the session-local `StopId? _selectedStopId` in `_HomeScreenState`.
 - **Controlled Section:** `UpcomingDeparturesSection` is a controlled presentation widget receiving `selectedStopId` and emitting `onStopSelected`.
 - **No Riverpod Home Controller:** Stop selection is ephemeral UI state; it is not managed in Riverpod or persisted across app restarts.
-- **State Preservation:** Navigating to Journey Search or the More tab and returning preserves Home's `_selectedStopId` via GoRouter's navigation stack.
+- **State Preservation:** Navigating to Journey Search, Stops, Routes, or the More tab and returning preserves Home's `_selectedStopId` via GoRouter's navigation stack.
 - **Search Entry Navigation:** Tapping the search entry placeholder invokes `_onSearchTapped`:
   - If a stop is selected: navigates to `/journeys?from=<StopId>`.
   - If no stop is selected: navigates to `/journeys`.
   - Only primitive `StopId` values cross the route boundary.
+- **Home Explore Entry (`HomeExploreSection`):**
+  - Positioned between `SearchEntryPlaceholder` and `UpcomingDeparturesSection`.
+  - Provides two interactive cards with 48dp minimum touch targets: "All stops" and "All routes".
+  - Tapping "All stops" navigates to `/stops` via `onAllStopsTap`.
+  - Tapping "All routes" navigates to `/routes` via `onAllRoutesTap`.
+  - Navigation does not mutate or clear `_selectedStopId`.
 - **Schedule Departure Grouping:**
   - `current`: Departures occurring on the current or previous operating day whose scheduled departure is >= the query minute.
   - `nextLater`: If `current` has no departures, `nextLater` searches up to seven subsequent calendar days to display the next scheduled service.
@@ -272,7 +319,66 @@ The Journey Search feature (`lib/features/journey_search/presentation/`) provide
 
 ---
 
-## 12. Errors and Async State
+## 12. Stops and Routes Browsing
+
+The Browse feature (`lib/features/browse/`) enables passengers to explore the entire transit network, inspect stop services and departures, examine distinct operated route-pattern variants and their scheduled trips, and jump directly into journey planning from a stop.
+
+### Feature Boundary and Providers
+- **Application + Presentation Only:** `lib/features/browse/` contains `application/` and `presentation/` layers only. Canonical catalog derivation functions (`routeVariants`, `routesServingStop`) reside in `lib/features/transit/domain/route_catalog.dart`.
+- **Application Providers (`browse_providers.dart`):**
+  - `stopDetailsProvider`: `Provider.autoDispose.family<AsyncValue<StopDetails?>, StopId>` joins `timetableProvider` and `routesServingStop` to project stop identity and serving routes. Known unused stops resolve with an empty routes list; unknown stops resolve to `AsyncData(null)`.
+  - `routeDetailsProvider`: `Provider.autoDispose.family<AsyncValue<RouteDetails?>, RouteId>` joins `timetableProvider` and `routeVariants` to project route identity and derived variants. Known zero-trip routes resolve with an empty variants list; unknown routes resolve to `AsyncData(null)`.
+  - Both providers propagate loading and error states from `timetableProvider`.
+- **No Browse Controllers or Persistence:** Browse does not introduce controllers, Notifiers, use cases, local caching, or device persistence. It reuses `timetableProvider`, `stopSearchProvider`, and `upcomingTripsProvider`.
+
+### Stops Browsing (`/stops` and `/stops/:stopId`)
+- **Stops List (`StopsScreen`):**
+  - Displays all stops in canonical timetable order when search query is empty.
+  - When searching, reactively filters and ranks stops via `stopSearchProvider`.
+  - Unused stops remain visible and accessible.
+  - Displays compact sample data notice when `timetable.info.isSampleData` is true.
+  - Displays `GtEmptyState` when search query produces no matches.
+- **Stop Details (`StopDetailsScreen`):**
+  - Canonical stop name header.
+  - Standard sample data notice when applicable.
+  - Prominent "Plan journey from here" button invoking `onPlanJourney` to navigate to `/journeys?from=<StopId>`.
+  - Routes serving the stop displayed with route short name chips and long names.
+  - Upcoming scheduled departures observed via `upcomingTripsProvider` using `StopUpcomingTripCard`.
+  - Scheduled-times disclaimer: `"Scheduled times. Actual times may vary."`
+  - Tapping upcoming trip cards invokes `onTripTap` to navigate to Trip Details (`/trips/:tripId`).
+  - Displays `GtEmptyState` not-found UI if the stop ID does not exist in the timetable.
+- **Router-Agnostic Design:** Browse screens do not perform direct GoRouter calls; all navigation actions are exposed as callbacks (`onStopTap`, `onPlanJourney`, `onTripTap`, `onBack`).
+
+### Routes Browsing (`/routes` and `/routes/:routeId`)
+- **Routes List (`RoutesScreen`):**
+  - Displays all routes in canonical timetable order, including routes with zero scheduled trips.
+  - Displays compact sample data notice when applicable.
+  - Tapping a route invokes `onRouteTap` to navigate to Route Details.
+- **Route Details (`RouteDetailsScreen`):**
+  - Canonical route header with short name badge and long name.
+  - Standard sample data notice when applicable.
+  - One distinct card section per derived `RouteVariant`.
+  - Full ordered stop sequence displayed for each variant with numbered stop indicator circles and stop names.
+  - Scheduled trips list per variant with first-stop departure, last-stop arrival, and operating days summary.
+  - Zero-variant routes display an empty state (`routeNoScheduledTrips`).
+  - Scheduled-times disclaimer (`BrowseScheduledTimesNote`) appears only when variants exist.
+  - Displays `GtEmptyState` not-found UI if the route ID does not exist in the timetable.
+  - Tapping a trip row invokes `onTripTap` to navigate to Trip Details.
+
+### Trip Row Endpoint Time Semantics
+- First-stop departure and last-stop arrival times are evaluated and formatted **independently** (`formatServiceTime` in `browse_display_format.dart`).
+- Service times with hour >= 24 (e.g., `24:15`) are normalized to clock times (`00`–`23`) with a visible `+1` next-day marker.
+- Screen-reader accessibility semantics independently announce departure vs. arrival and next-day meaning (`routeDepartureEndpointSemantics`, `routeArrivalEndpointSemantics`, `tripDetailsNextDaySemantics`).
+- Next-day status is **never** inferred at the row level; an early morning arrival does not mark a departure as next-day.
+
+### Disclosures and Offline Operation
+- **Sample-Data Disclosure:** `"Sample timetable for testing — not for real travel."` (`BrowseSampleDataNotice`). Rendered in compact style on list screens and standard card style on detail screens. Omitted during loading, error, and not-found states.
+- **Scheduled-Time Disclosure:** `"Scheduled times. Actual times may vary."` (`BrowseScheduledTimesNote`). Displayed on Stop Details departures and Route Details trip lists (when variants exist).
+- **Offline Guarantee:** All Browse functionality functions completely offline from bundled snapshot data (`sample-v2`) without network requests, GPS, or backend dependencies.
+
+---
+
+## 13. Errors and Async State
 
 Error presentation is strongly typed and centralized to maintain fail-safe behavior.
 
@@ -288,7 +394,7 @@ Implemented under `lib/core/error/app_failure.dart`:
 
 ---
 
-## 13. Configuration, Bootstrap and Storage
+## 14. Configuration, Bootstrap and Storage
 
 ### Bootstrap Sequence
 Executed in `lib/app/bootstrap.dart` before `runApp()`:
@@ -302,7 +408,7 @@ The storage abstraction (`KeyValueStore`) is strictly limited to key-value user 
 
 ---
 
-## 14. Logging
+## 15. Logging
 
 Logging is centralized via `AppLogger` (`lib/core/logging/app_logger.dart`):
 - Provides leveled logging: `debug`, `info`, `warning`, `error`.
@@ -311,7 +417,7 @@ Logging is centralized via `AppLogger` (`lib/core/logging/app_logger.dart`):
 
 ---
 
-## 15. Design System, Accessibility and Localization
+## 16. Design System, Accessibility and Localization
 
 ### Design System Tokens and Components
 Implemented under `lib/core/design_system/`:
@@ -320,18 +426,19 @@ Implemented under `lib/core/design_system/`:
 
 ### Accessibility Invariants
 - Minimum touch targets of 48×48 dp for interactive controls.
-- Text layouts support up to 200% system font scaling without clipping.
-- Timeline indicators and decorative icons are excluded from screen-reader semantics (`ExcludeSemantics`), while stop times provide descriptive semantic labels.
+- Text layouts support up to 200% system font scaling without clipping on 360dp target width.
+- Timeline indicators and decorative icons are excluded from screen-reader semantics (`ExcludeSemantics`), while stop times and route sequence items provide descriptive semantic labels.
 - Information is never conveyed through color alone.
 
 ### Localization Strategy
 - **UI Strings:** All static UI text is localized through Flutter ARB files (`lib/core/l10n/arb/`) generating `AppLocalizations`.
 - **Transit Proper Names:** Stop and route names use `LocalizedText` (resolving currently to English, ready for regional language expansion).
 - **Date/Time Formatting:** Feature layers use shared helpers in `lib/core/l10n/date_time_formatting.dart` to respect system 12/24-hour preferences and locale calendars.
+- **Shared Weekday Formatting:** Decoupled helpers `formatShortWeekday` and `formatShortWeekdays` in `lib/core/l10n/date_time_formatting.dart` format integer weekday constants (`DateTime.monday` through `DateTime.sunday`). Core does not import transit domain models (`ServiceDays`), maintaining strict layer independence (Rule `G1`).
 
 ---
 
-## 16. Testing Approach
+## 17. Testing Approach
 
 Testing emphasizes speed, determinism, and architectural integrity without brittle mock libraries ([ADR 0004](adr/0004-testing-ci-and-architecture-guardrails.md)).
 
@@ -341,15 +448,16 @@ Testing emphasizes speed, determinism, and architectural integrity without britt
 - **Deterministic Time:** Tests override `clockProvider` or `minuteTickerProvider` with controlled instances.
 - **Architecture Guardrails:** Zero-dependency static analyzer tests in `test/architecture/import_rules_test.dart` enforce layer boundaries, forbidden dependencies, and clean domain isolation.
 - **Shipped Asset Verification:** `test/features/transit/data/bundled_timetable_asset_test.dart` verifies that the actual bundled asset loads and validates against the real repository implementation.
+- **Verification Metrics:** Full test suite passes 485/485 tests, `flutter analyze --fatal-infos --fatal-warnings` passes with 0 issues, production configuration test passes, and Passenger CI #25 is green.
 
 ---
 
-## 17. Not Yet Implemented
+## 18. Not Yet Implemented
 
-The following features are planned for future phases and are not part of the Phase 1 or Phase 2 architecture:
+The following features are planned for future phases and are not part of the Phase 1, Phase 2, or Phase 3 architecture:
 
-- **Transfers & Multi-Leg Journey Planning:** Routing across multiple bus routes with connection transfers and interchange buffers (Phase 2 is direct journeys only).
-- **Multilingual / Regional Stop Search:** Stop search matching Kannada and Malayalam scripts or phonetic transliteration (Phase 2 is English stop search).
+- **Transfers & Multi-Leg Journey Planning:** Routing across multiple bus routes with connection transfers and interchange buffers (Phase 2 and Phase 3 support direct journeys only).
+- **Multilingual / Regional Stop Search:** Stop search matching Kannada and Malayalam scripts or phonetic transliteration (currently English stop search).
 - **Remote Timetable Source & Caching:** Downloading updated timetable snapshots over HTTPS with SQLite or local filesystem caching.
 - **Backend API Integration:** Connecting to Spring Boot backend services.
 - **Realtime Vehicle Tracking:** Live bus positions, arrival delay calculations, and WebSocket streaming.

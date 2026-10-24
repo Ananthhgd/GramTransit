@@ -2,14 +2,17 @@
 
 The Passenger app provides bus timings and transit information for rural village routes.
 
-**Status:** In development (Phase 2 — Direct Journey Discovery & Journey Search complete; Phase 1 — Transit Catalog & Offline Timetable complete).
+**Status:** In development (Phase 3 — Stops, Routes & Timetable Browsing complete; Phase 2 — Direct Journey Discovery & Journey Search complete; Phase 1 — Transit Catalog & Offline Timetable complete).
 
 ## Implemented Capabilities
 
 - **Offline Scheduled Departures:** View upcoming bus departures from a selected boarding stop evaluated against bundled timetable data.
 - **Direct Journey Discovery:** Search scheduled direct journeys between boarding (`From`) and destination (`To`) stops without requiring live connectivity.
 - **Offline Stop Search:** Fast, deterministic English stop search with instant filtering and ranking.
-- **Top-Level Journey Routing:** Dedicated `/journeys` screen supporting direct deep linking and query initialization (`/journeys?from=<StopId>&to=<StopId>`).
+- **Stops Browsing & Stop Details:** Browse all stops in the network, search stops offline, inspect serving routes and upcoming departures, and launch journey planning directly from a stop (`/stops`, `/stops/:stopId`).
+- **Routes Browsing & Route Details:** Browse all operated routes, inspect derived route-pattern variants with complete ordered stop sequences, and view scheduled trips with operating days (`/routes`, `/routes/:routeId`).
+- **Home Explore Navigation:** Direct home-screen entry points to explore all stops and all routes without mutating session boarding selections.
+- **Top-Level Journey and Catalog Routing:** Dedicated `/journeys`, `/stops`, `/stops/:stopId`, `/routes`, and `/routes/:routeId` screens supporting direct deep linking and resilient two-stage parameter validation.
 - **Schedule-First & Guest-First:** Complete offline functionality with bundled sample timetable data (`sample-v2`). No user login, no backend API, and no GPS/maps required.
 - **Scheduled Information Only:** Displays scheduled timetable timings; does not provide live vehicle positions, real-time delays, or multi-leg transfers.
 

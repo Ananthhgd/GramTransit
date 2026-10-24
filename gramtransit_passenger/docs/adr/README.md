@@ -8,3 +8,4 @@ This directory contains Architecture Decision Records (ADRs) specific to the Gra
 - [0004: Testing, CI, and Architecture Guardrails](0004-testing-ci-and-architecture-guardrails.md)
 - [0005: Shared Transit Model and Offline Bundled Timetable](0005-offline-timetable-and-transit-model.md)
 - [0006: Direct Journey Discovery and Journey Search](0006-direct-journey-discovery-and-journey-search.md)
+- [0007: Stops, Routes, and Timetable Browsing](0007-stops-routes-and-timetable-browsing.md)
