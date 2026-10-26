@@ -185,7 +185,15 @@ Future<void> pumpJourneySearchTest(
   ThemeMode themeMode = ThemeMode.light,
   double textScaleFactor = 1.0,
   DateTime? fixedNow,
+  Size? surfaceSize,
 }) async {
+  if (surfaceSize != null) {
+    tester.view.physicalSize = surfaceSize * tester.view.devicePixelRatio;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+    });
+  }
+
   // Default Monday morning 2026-01-05 07:30 before morning trips
   final effectiveNow = fixedNow ?? DateTime(2026, 1, 5, 7, 30);
 
@@ -210,7 +218,10 @@ Future<void> pumpJourneySearchTest(
         darkTheme: GtTheme.dark(),
         themeMode: themeMode,
         home: MediaQuery(
-          data: MediaQueryData(textScaler: TextScaler.linear(textScaleFactor)),
+          data: MediaQueryData(
+            size: surfaceSize ?? Size.zero,
+            textScaler: TextScaler.linear(textScaleFactor),
+          ),
           child:
               child ??
               JourneySearchScreen(

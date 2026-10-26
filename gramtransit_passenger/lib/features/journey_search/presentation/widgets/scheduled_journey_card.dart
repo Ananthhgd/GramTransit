@@ -63,60 +63,69 @@ class ScheduledJourneyCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: [
-                    Text(
-                      departureText,
-                      style: textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
+                SizedBox(
+                  width: double.infinity,
+                  child: Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: GtSpacing.sm,
+                    runSpacing: GtSpacing.xs,
+                    children: [
+                      Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: GtSpacing.xs,
+                        runSpacing: GtSpacing.xs,
+                        children: [
+                          Text(
+                            departureText,
+                            style: textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            '→',
+                            style: textTheme.titleMedium?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          Text(
+                            arrivalText,
+                            style: textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          if (journey.arrivesOnLaterCalendarDay)
+                            Semantics(
+                              label: l10n.tripDetailsNextDaySemantics,
+                              child: Text(
+                                l10n.tripDetailsNextDayMarker,
+                                style: textTheme.labelSmall?.copyWith(
+                                  color: colorScheme.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
-                    ),
-                    Text(
-                      ' → ',
-                      style: textTheme.titleMedium?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    Text(
-                      arrivalText,
-                      style: textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    if (journey.arrivesOnLaterCalendarDay) ...[
-                      const SizedBox(width: GtSpacing.xs),
-                      Semantics(
-                        label: l10n.tripDetailsNextDaySemantics,
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: GtSpacing.sm,
+                          vertical: GtSpacing.xs,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colorScheme.secondaryContainer,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
                         child: Text(
-                          l10n.tripDetailsNextDayMarker,
+                          durationText,
                           style: textTheme.labelSmall?.copyWith(
-                            color: colorScheme.primary,
-                            fontWeight: FontWeight.bold,
+                            color: colorScheme.onSecondaryContainer,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
                     ],
-                    const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: GtSpacing.sm,
-                        vertical: GtSpacing.xs,
-                      ),
-                      decoration: BoxDecoration(
-                        color: colorScheme.secondaryContainer,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        durationText,
-                        style: textTheme.labelSmall?.copyWith(
-                          color: colorScheme.onSecondaryContainer,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
                 const SizedBox(height: GtSpacing.sm),
                 Text(

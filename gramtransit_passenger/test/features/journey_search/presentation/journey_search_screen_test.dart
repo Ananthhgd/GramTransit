@@ -976,5 +976,75 @@ void main() {
         );
       },
     );
+
+    testWidgets(
+      'Z. Accessibility: 360dp width with 200% text scale renders journey card without overflow',
+      (tester) async {
+        final timetable = createJourneyTestTimetable();
+        final fakeRepo = FakeTimetableRepository(timetable: timetable);
+        ScheduledJourney? selectedJourney;
+
+        await pumpJourneySearchTest(
+          tester,
+          surfaceSize: const Size(360, 640),
+          textScaleFactor: 2.0,
+          themeMode: ThemeMode.dark,
+          initialBoardingStopId: StopId('stop_alpha_1'),
+          initialAlightingStopId: StopId('stop_central'),
+          onJourneySelected: (j) => selectedJourney = j,
+          overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
+        );
+        await tester.pumpAndSettle();
+
+        expect(tester.takeException(), isNull);
+        expect(find.byType(ScheduledJourneyCard), findsWidgets);
+        expect(find.text('8:00 AM'), findsOneWidget);
+        expect(find.text('8:30 AM'), findsOneWidget);
+        expect(find.text('30 min'), findsWidgets);
+        expect(find.text('Alpha Central → Central Station'), findsWidgets);
+        expect(find.text('Route 101 · To Central Station'), findsWidgets);
+
+        // Next-day marker and semantics preserved
+        expect(find.text('+1'), findsOneWidget);
+        final semanticsHandle = tester.ensureSemantics();
+        expect(
+          tester.getSemantics(find.text('+1')).label,
+          contains('next day'),
+        );
+        semanticsHandle.dispose();
+
+        // Card tap semantics / interactivity preserved
+        final cardFinder = find.byType(ScheduledJourneyCard).first;
+        await tester.ensureVisible(cardFinder);
+        await tester.pumpAndSettle();
+        await tester.tap(cardFinder);
+        await tester.pumpAndSettle();
+        expect(selectedJourney, isNotNull);
+      },
+    );
+
+    testWidgets(
+      'Z2. Accessibility: next-later with date disclosure renders at 360dp with 200% text scale without overflow',
+      (tester) async {
+        final timetable = createJourneyTestTimetable();
+        final fakeRepo = FakeTimetableRepository(timetable: timetable);
+
+        await pumpJourneySearchTest(
+          tester,
+          surfaceSize: const Size(360, 640),
+          textScaleFactor: 2.0,
+          themeMode: ThemeMode.dark,
+          fixedNow: DateTime(2026, 1, 5, 23, 50),
+          initialBoardingStopId: StopId('stop_alpha_1'),
+          initialAlightingStopId: StopId('stop_central'),
+          overrides: [timetableRepositoryProvider.overrideWithValue(fakeRepo)],
+        );
+        await tester.pumpAndSettle();
+
+        expect(tester.takeException(), isNull);
+        expect(find.byType(ScheduledJourneyCard), findsWidgets);
+        expect(find.text('30 min'), findsWidgets);
+      },
+    );
   });
 }
