@@ -13,6 +13,7 @@ import 'package:gramtransit_passenger/features/browse/presentation/browse_displa
 import 'package:gramtransit_passenger/features/browse/presentation/widgets/browse_sample_data_notice.dart';
 import 'package:gramtransit_passenger/features/browse/presentation/widgets/browse_scheduled_times_note.dart';
 import 'package:gramtransit_passenger/features/browse/presentation/widgets/stop_upcoming_trip_card.dart';
+import 'package:gramtransit_passenger/features/saved/application/saved_transit_controller.dart';
 import 'package:gramtransit_passenger/features/transit/domain/ids.dart';
 import 'package:gramtransit_passenger/features/transit/providers/transit_providers.dart';
 
@@ -47,13 +48,49 @@ class StopDetailsScreen extends ConsumerWidget {
     return context.l10n.homeTimetableLoadError;
   }
 
+  Future<void> _toggleSaveStop(BuildContext context, WidgetRef ref) async {
+    final isSaved = ref
+        .read(savedTransitControllerProvider)
+        .containsStop(stopId);
+    try {
+      if (isSaved) {
+        await ref
+            .read(savedTransitControllerProvider.notifier)
+            .unsaveStop(stopId);
+      } else {
+        await ref
+            .read(savedTransitControllerProvider.notifier)
+            .saveStop(stopId);
+      }
+    } on StorageFailure {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(context.l10n.errorStorage)));
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final stopDetailsAsync = ref.watch(stopDetailsProvider(stopId));
+    final isSaved = ref
+        .watch(savedTransitControllerProvider)
+        .containsStop(stopId);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.stopDetailsTitle)),
+      appBar: AppBar(
+        title: Text(l10n.stopDetailsTitle),
+        actions: [
+          IconButton(
+            constraints: const BoxConstraints(minWidth: 48.0, minHeight: 48.0),
+            icon: Icon(
+              isSaved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+            ),
+            tooltip: isSaved ? 'Remove saved stop' : 'Save stop',
+            onPressed: () => _toggleSaveStop(context, ref),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: stopDetailsAsync.when(
           loading: () => const GtLoadingView(),

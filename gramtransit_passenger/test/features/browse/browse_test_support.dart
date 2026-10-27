@@ -6,7 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:gramtransit_passenger/core/design_system/theme/gt_theme.dart';
+import 'package:gramtransit_passenger/core/error/app_failure.dart';
 import 'package:gramtransit_passenger/core/l10n/generated/app_localizations.dart';
+import 'package:gramtransit_passenger/core/storage/in_memory_key_value_store.dart';
+import 'package:gramtransit_passenger/core/storage/key_value_store.dart';
+import 'package:gramtransit_passenger/core/storage/storage_providers.dart';
 import 'package:gramtransit_passenger/core/time/time_providers.dart';
 import 'package:gramtransit_passenger/features/transit/domain/ids.dart';
 import 'package:gramtransit_passenger/features/transit/domain/localized_text.dart';
@@ -14,6 +18,30 @@ import 'package:gramtransit_passenger/features/transit/domain/service_days.dart'
 import 'package:gramtransit_passenger/features/transit/domain/service_time.dart';
 import 'package:gramtransit_passenger/features/transit/domain/timetable_repository.dart';
 import 'package:gramtransit_passenger/features/transit/domain/transit_models.dart';
+
+/// Test double for [KeyValueStore] that simulates a storage write failure.
+final class FailingWriteKeyValueStore implements KeyValueStore {
+  FailingWriteKeyValueStore({
+    Map<String, String>? initial,
+    this.failureCause = 'Simulated write failure',
+  }) : _store = initial != null ? Map.of(initial) : {};
+
+  final Map<String, String> _store;
+  final Object failureCause;
+
+  @override
+  String? getString(String key) => _store[key];
+
+  @override
+  Future<void> setString(String key, String value) async {
+    throw StorageFailure(cause: failureCause);
+  }
+
+  @override
+  Future<void> remove(String key) async {
+    _store.remove(key);
+  }
+}
 
 /// Test double for [TimetableRepository] in Browse tests.
 class FakeBrowseTimetableRepository implements TimetableRepository {
@@ -164,10 +192,20 @@ Future<void> pumpBrowseTest(
   // Default test time: Monday 2026-10-19 07:30 UTC
   final effectiveNow = now ?? DateTime.utc(2026, 10, 19, 7, 30);
 
+  final hasStoreOverride = overrides.any((dynamic o) {
+    try {
+      return (o as dynamic).origin == keyValueStoreProvider;
+    } catch (_) {
+      return false;
+    }
+  });
+
   final defaultOverrides = [
     minuteTickerProvider.overrideWith(
       (ref) => Stream<DateTime>.value(effectiveNow),
     ),
+    if (!hasStoreOverride)
+      keyValueStoreProvider.overrideWithValue(InMemoryKeyValueStore()),
     ...overrides,
   ];
 

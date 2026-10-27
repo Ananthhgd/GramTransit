@@ -12,6 +12,7 @@ import 'package:gramtransit_passenger/features/browse/application/browse_provide
 import 'package:gramtransit_passenger/features/browse/presentation/browse_display_format.dart';
 import 'package:gramtransit_passenger/features/browse/presentation/widgets/browse_sample_data_notice.dart';
 import 'package:gramtransit_passenger/features/browse/presentation/widgets/browse_scheduled_times_note.dart';
+import 'package:gramtransit_passenger/features/saved/application/saved_transit_controller.dart';
 import 'package:gramtransit_passenger/features/transit/domain/ids.dart';
 import 'package:gramtransit_passenger/features/transit/domain/route_catalog.dart';
 import 'package:gramtransit_passenger/features/transit/domain/transit_models.dart';
@@ -46,13 +47,49 @@ class RouteDetailsScreen extends ConsumerWidget {
     return context.l10n.homeTimetableLoadError;
   }
 
+  Future<void> _toggleSaveRoute(BuildContext context, WidgetRef ref) async {
+    final isSaved = ref
+        .read(savedTransitControllerProvider)
+        .containsRoute(routeId);
+    try {
+      if (isSaved) {
+        await ref
+            .read(savedTransitControllerProvider.notifier)
+            .unsaveRoute(routeId);
+      } else {
+        await ref
+            .read(savedTransitControllerProvider.notifier)
+            .saveRoute(routeId);
+      }
+    } on StorageFailure {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(context.l10n.errorStorage)));
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final routeDetailsAsync = ref.watch(routeDetailsProvider(routeId));
+    final isSaved = ref
+        .watch(savedTransitControllerProvider)
+        .containsRoute(routeId);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.routeDetailsTitle)),
+      appBar: AppBar(
+        title: Text(l10n.routeDetailsTitle),
+        actions: [
+          IconButton(
+            constraints: const BoxConstraints(minWidth: 48.0, minHeight: 48.0),
+            icon: Icon(
+              isSaved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+            ),
+            tooltip: isSaved ? 'Remove saved route' : 'Save route',
+            onPressed: () => _toggleSaveRoute(context, ref),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: routeDetailsAsync.when(
           loading: () => const GtLoadingView(),

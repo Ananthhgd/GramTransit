@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,6 +8,8 @@ import 'package:gramtransit_passenger/core/design_system/components/feedback/gt_
 import 'package:gramtransit_passenger/core/design_system/components/feedback/gt_error_view.dart';
 import 'package:gramtransit_passenger/core/design_system/components/feedback/gt_loading_view.dart';
 import 'package:gramtransit_passenger/core/error/app_failure.dart';
+import 'package:gramtransit_passenger/core/storage/in_memory_key_value_store.dart';
+import 'package:gramtransit_passenger/core/storage/storage_providers.dart';
 import 'package:gramtransit_passenger/features/browse/presentation/route_details_screen.dart';
 import 'package:gramtransit_passenger/features/browse/presentation/widgets/browse_sample_data_notice.dart';
 import 'package:gramtransit_passenger/features/browse/presentation/widgets/browse_scheduled_times_note.dart';
@@ -911,6 +914,281 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.text('501'), findsOneWidget);
+    });
+
+    group('P4.3: Detail Save / Unsave Controls', () {
+      testWidgets('9. unsaved route shows outlined bookmark action', (
+        tester,
+      ) async {
+        final timetable = createBrowseTestTimetable();
+        final fakeRepo = FakeBrowseTimetableRepository(timetable: timetable);
+        final store = InMemoryKeyValueStore();
+
+        await pumpBrowseTest(
+          tester,
+          child: RouteDetailsScreen(routeId: RouteId('route_1')),
+          overrides: [
+            timetableRepositoryProvider.overrideWithValue(fakeRepo),
+            keyValueStoreProvider.overrideWithValue(store),
+          ],
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.byIcon(Icons.bookmark_border_rounded), findsOneWidget);
+        expect(find.byIcon(Icons.bookmark_rounded), findsNothing);
+      });
+
+      testWidgets('10. unsaved action exposes "Save route"', (tester) async {
+        final timetable = createBrowseTestTimetable();
+        final fakeRepo = FakeBrowseTimetableRepository(timetable: timetable);
+        final store = InMemoryKeyValueStore();
+
+        await pumpBrowseTest(
+          tester,
+          child: RouteDetailsScreen(routeId: RouteId('route_1')),
+          overrides: [
+            timetableRepositoryProvider.overrideWithValue(fakeRepo),
+            keyValueStoreProvider.overrideWithValue(store),
+          ],
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.byTooltip('Save route'), findsOneWidget);
+        expect(
+          tester.widget<IconButton>(find.byType(IconButton)).tooltip,
+          equals('Save route'),
+        );
+      });
+
+      testWidgets('11. tapping Save route updates UI to saved/filled state', (
+        tester,
+      ) async {
+        final timetable = createBrowseTestTimetable();
+        final fakeRepo = FakeBrowseTimetableRepository(timetable: timetable);
+        final store = InMemoryKeyValueStore();
+
+        await pumpBrowseTest(
+          tester,
+          child: RouteDetailsScreen(routeId: RouteId('route_1')),
+          overrides: [
+            timetableRepositoryProvider.overrideWithValue(fakeRepo),
+            keyValueStoreProvider.overrideWithValue(store),
+          ],
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byTooltip('Save route'));
+        await tester.pumpAndSettle();
+
+        expect(find.byIcon(Icons.bookmark_rounded), findsOneWidget);
+        expect(find.byIcon(Icons.bookmark_border_rounded), findsNothing);
+        expect(find.byTooltip('Remove saved route'), findsOneWidget);
+      });
+
+      testWidgets('12. saved route initially shows filled bookmark', (
+        tester,
+      ) async {
+        final timetable = createBrowseTestTimetable();
+        final fakeRepo = FakeBrowseTimetableRepository(timetable: timetable);
+        final store = InMemoryKeyValueStore(
+          initial: {
+            'gt.saved.transit': jsonEncode({
+              'version': 1,
+              'stops': <String>[],
+              'routes': ['route_1'],
+            }),
+          },
+        );
+
+        await pumpBrowseTest(
+          tester,
+          child: RouteDetailsScreen(routeId: RouteId('route_1')),
+          overrides: [
+            timetableRepositoryProvider.overrideWithValue(fakeRepo),
+            keyValueStoreProvider.overrideWithValue(store),
+          ],
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.byIcon(Icons.bookmark_rounded), findsOneWidget);
+        expect(find.byIcon(Icons.bookmark_border_rounded), findsNothing);
+      });
+
+      testWidgets('13. saved action exposes "Remove saved route"', (
+        tester,
+      ) async {
+        final timetable = createBrowseTestTimetable();
+        final fakeRepo = FakeBrowseTimetableRepository(timetable: timetable);
+        final store = InMemoryKeyValueStore(
+          initial: {
+            'gt.saved.transit': jsonEncode({
+              'version': 1,
+              'stops': <String>[],
+              'routes': ['route_1'],
+            }),
+          },
+        );
+
+        await pumpBrowseTest(
+          tester,
+          child: RouteDetailsScreen(routeId: RouteId('route_1')),
+          overrides: [
+            timetableRepositoryProvider.overrideWithValue(fakeRepo),
+            keyValueStoreProvider.overrideWithValue(store),
+          ],
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.byTooltip('Remove saved route'), findsOneWidget);
+        expect(
+          tester.widget<IconButton>(find.byType(IconButton)).tooltip,
+          equals('Remove saved route'),
+        );
+      });
+
+      testWidgets(
+        '14. tapping Remove saved route updates UI to unsaved/outlined state',
+        (tester) async {
+          final timetable = createBrowseTestTimetable();
+          final fakeRepo = FakeBrowseTimetableRepository(timetable: timetable);
+          final store = InMemoryKeyValueStore(
+            initial: {
+              'gt.saved.transit': jsonEncode({
+                'version': 1,
+                'stops': <String>[],
+                'routes': ['route_1'],
+              }),
+            },
+          );
+
+          await pumpBrowseTest(
+            tester,
+            child: RouteDetailsScreen(routeId: RouteId('route_1')),
+            overrides: [
+              timetableRepositoryProvider.overrideWithValue(fakeRepo),
+              keyValueStoreProvider.overrideWithValue(store),
+            ],
+          );
+          await tester.pumpAndSettle();
+
+          await tester.tap(find.byTooltip('Remove saved route'));
+          await tester.pumpAndSettle();
+
+          expect(find.byIcon(Icons.bookmark_border_rounded), findsOneWidget);
+          expect(find.byIcon(Icons.bookmark_rounded), findsNothing);
+          expect(find.byTooltip('Save route'), findsOneWidget);
+        },
+      );
+
+      testWidgets(
+        '15. StorageFailure on save: retains optimistic saved state and displays failure SnackBar',
+        (tester) async {
+          final timetable = createBrowseTestTimetable();
+          final fakeRepo = FakeBrowseTimetableRepository(timetable: timetable);
+          final store = FailingWriteKeyValueStore();
+
+          await pumpBrowseTest(
+            tester,
+            child: RouteDetailsScreen(routeId: RouteId('route_1')),
+            overrides: [
+              timetableRepositoryProvider.overrideWithValue(fakeRepo),
+              keyValueStoreProvider.overrideWithValue(store),
+            ],
+          );
+          await tester.pumpAndSettle();
+
+          expect(find.byIcon(Icons.bookmark_border_rounded), findsOneWidget);
+
+          await tester.tap(find.byTooltip('Save route'));
+          await tester.pump();
+          await tester.pumpAndSettle();
+
+          // Retain optimistic saved state
+          expect(find.byIcon(Icons.bookmark_rounded), findsOneWidget);
+          expect(find.byIcon(Icons.bookmark_border_rounded), findsNothing);
+          expect(find.byTooltip('Remove saved route'), findsOneWidget);
+
+          // Shows failure SnackBar with localized error
+          expect(find.byType(SnackBar), findsOneWidget);
+          expect(
+            find.text("We couldn't save this on your device."),
+            findsOneWidget,
+          );
+        },
+      );
+
+      testWidgets(
+        '16. StorageFailure on unsave: retains optimistic unsaved state and displays failure SnackBar',
+        (tester) async {
+          final timetable = createBrowseTestTimetable();
+          final fakeRepo = FakeBrowseTimetableRepository(timetable: timetable);
+          final store = FailingWriteKeyValueStore(
+            initial: {
+              'gt.saved.transit': jsonEncode({
+                'version': 1,
+                'stops': <String>[],
+                'routes': ['route_1'],
+              }),
+            },
+          );
+
+          await pumpBrowseTest(
+            tester,
+            child: RouteDetailsScreen(routeId: RouteId('route_1')),
+            overrides: [
+              timetableRepositoryProvider.overrideWithValue(fakeRepo),
+              keyValueStoreProvider.overrideWithValue(store),
+            ],
+          );
+          await tester.pumpAndSettle();
+
+          expect(find.byIcon(Icons.bookmark_rounded), findsOneWidget);
+
+          await tester.tap(find.byTooltip('Remove saved route'));
+          await tester.pump();
+          await tester.pumpAndSettle();
+
+          // Retain optimistic unsaved state
+          expect(find.byIcon(Icons.bookmark_border_rounded), findsOneWidget);
+          expect(find.byIcon(Icons.bookmark_rounded), findsNothing);
+          expect(find.byTooltip('Save route'), findsOneWidget);
+
+          // Shows failure SnackBar with localized error
+          expect(find.byType(SnackBar), findsOneWidget);
+          expect(
+            find.text("We couldn't save this on your device."),
+            findsOneWidget,
+          );
+        },
+      );
+
+      testWidgets(
+        'accessibility: bookmark action meets target size and renders in 200% text scale and dark theme',
+        (tester) async {
+          final timetable = createBrowseTestTimetable();
+          final fakeRepo = FakeBrowseTimetableRepository(timetable: timetable);
+          final store = InMemoryKeyValueStore();
+
+          await pumpBrowseTest(
+            tester,
+            themeMode: ThemeMode.dark,
+            surfaceSize: const Size(360, 640),
+            textScaleFactor: 2.0,
+            child: RouteDetailsScreen(routeId: RouteId('route_1')),
+            overrides: [
+              timetableRepositoryProvider.overrideWithValue(fakeRepo),
+              keyValueStoreProvider.overrideWithValue(store),
+            ],
+          );
+          await tester.pumpAndSettle();
+
+          final bookmarkButton = find.byTooltip('Save route');
+          expect(bookmarkButton, findsOneWidget);
+          final size = tester.getSize(bookmarkButton);
+          expect(size.width, greaterThanOrEqualTo(48.0));
+          expect(size.height, greaterThanOrEqualTo(48.0));
+        },
+      );
     });
   });
 }
